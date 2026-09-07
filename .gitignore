@@ -112,6 +112,13 @@ ipch/
 *.VC.db
 *.VC.VC.opendb
 
+# Projects Visual Studio
+*.vcxproj
+*.vcxproj.filters
+
+# Cash 
+.scannerwork/
+
 # Visual Studio profiler
 *.psess
 *.vsp
@@ -361,3 +368,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Lab.vcxproj.filters
+/Lab.vcxproj.filters
+/Lab.vcxproj.filters
+/Lab.vcxproj.filters
+/.scannerwork/.sonar_lock
+/.scannerwork/report-task.txt
+/Lab.vcxproj
+/Lab.vcxproj
+/Lab.vcxproj.filters
