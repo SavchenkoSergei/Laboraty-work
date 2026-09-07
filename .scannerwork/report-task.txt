@@ -1,6 +1,0 @@
-projectKey=Laboratory-work
-serverUrl=http://localhost:9000
-serverVersion=26.8.0.126808
-dashboardUrl=http://localhost:9000/dashboard?id=Laboratory-work
-ceTaskId=2fad1c71-1e36-4b2c-9f29-a365105a9535
-ceTaskUrl=http://localhost:9000/api/ce/task?id=2fad1c71-1e36-4b2c-9f29-a365105a9535
