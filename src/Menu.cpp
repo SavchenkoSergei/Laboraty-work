@@ -102,14 +102,29 @@ static void editDeviceMenu(ElectronicDevice& device) {
         std::cin.ignore(10000, '\n');
 
         switch (subChoice) {
-        case 1: updateType(device); break;
-        case 2: updateModel(device); break;
-        case 3: updateManufacturer(device); break;
-        case 4: updatePrice(device); break;
-        case 5: updateWarranty(device); break;
-        case 6: updateExtraSpec(device); break;
-        case 0: break;
-        default: std::cout << "Неверный пункт меню.\n"; break;
+        case 1: 
+            updateType(device);
+            break;
+        case 2: 
+            updateModel(device); 
+            break;
+        case 3: 
+            updateManufacturer(device); 
+            break;
+        case 4: 
+            updatePrice(device); 
+            break;
+        case 5: 
+            updateWarranty(device); 
+            break;
+        case 6: 
+            updateExtraSpec(device); 
+            break;
+        case 0: 
+            break;
+        default: 
+            std::cout << "Неверный пункт меню.\n"; 
+            break;
         }
     }
 }
