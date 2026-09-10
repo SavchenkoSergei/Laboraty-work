@@ -169,6 +169,21 @@ void showMenu() {
         << "2. Добавить новый товар\n"
         << "3. Изменить характеристики товара\n"
         << "4. Посмотреть информацию об отдельном товаре\n"
+        << "5. Удаление товара\n"
         << "0. Выход\n"
         << "Выберите пункт меню: ";
+}
+
+void handleRemoveDevice(Warehouse& warehouse) {
+    std::string model;
+    std::cout << "Введите модель устройства для удаления: ";
+
+    std::getline(std::cin, model);
+
+    if (warehouse.removeDeviceByModel(model)) {
+        std::cout << "Товар успешно удален.\n";
+    }
+    else {
+        std::cout << "Товар не найден.\n";
+    }
 }

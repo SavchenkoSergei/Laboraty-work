@@ -30,6 +30,9 @@ int main() {
         case 4:
             handleGetIndividualCharacteristics(centralWarehouse);
             break;
+        case 5:
+            handleRemoveDevice(centralWarehouse);
+            break;
         case 0:
             std::cout << "Выход из программы. До свидания!\n";
             break;
