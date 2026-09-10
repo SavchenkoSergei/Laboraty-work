@@ -43,13 +43,11 @@ ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
 }
 
 bool Warehouse::removeDeviceByModel(std::string_view model) {
-    auto it = std::remove_if(inventory.begin(), inventory.end(),
-        [model](const StockItem& item) {
-            return item.device.getModel() == model;
+    auto initialSize = inventory.size();
+
+    std::erase_if(inventory, [model](const StockItem& item) {
+        return item.device.getModel() == model;
         });
-    if (it == inventory.end()) {
-        return false;
-    }
-    inventory.erase(it, inventory.end());
-    return true;
+
+    return inventory.size() < initialSize;
 }
