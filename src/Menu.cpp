@@ -59,7 +59,14 @@ static void updatePrice(ElectronicDevice& device) {
     std::cout << "Введите новую цену: ";
     std::cin >> price;
     std::cin.ignore(10000, '\n');
+
+    if (price < 0) {
+        std::cout << "Ошибка: цена не может быть отрицательной!\n";
+        return;
+    }
+
     device.setPrice(price);
+    std::cout << "Цена успешно обновлена.\n";
 }
 
 static void updateWarranty(ElectronicDevice& device) {
@@ -67,7 +74,14 @@ static void updateWarranty(ElectronicDevice& device) {
     std::cout << "Введите новый гарантийный срок: ";
     std::cin >> warranty;
     std::cin.ignore(10000, '\n');
+
+    if (warranty < 0) {
+        std::cout << "Ошибка: гарантийный срок не может быть отрицательным!\n";
+        return;
+    }
+
     device.setWarrantyMonths(warranty);
+    std::cout << "Гарантийный срок успешно обновлён.\n";
 }
 
 static void updateExtraSpec(ElectronicDevice& device) {
