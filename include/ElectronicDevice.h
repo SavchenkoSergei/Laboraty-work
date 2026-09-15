@@ -11,7 +11,6 @@ private:
     double price;
     int warrantyMonths;
     std::string extraSpec;
-
 public:
     ElectronicDevice(std::string_view devType, std::string_view devModel,
         std::string_view devManufacturer, double initialPrice,

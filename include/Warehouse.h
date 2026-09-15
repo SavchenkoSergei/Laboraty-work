@@ -8,7 +8,6 @@ class Warehouse {
 private:
     std::string warehouseName;
     std::vector<StockItem> inventory;
-
 public:
     explicit Warehouse(std::string_view name);
 
