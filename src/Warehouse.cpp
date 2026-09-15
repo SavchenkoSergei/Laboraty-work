@@ -84,7 +84,7 @@ void Warehouse::sortByPrice() {
         return;
     }
 
-    std::sort(inventory.begin(), inventory.end(), [](const StockItem& a, const StockItem& b) {
+    std::ranges::sort(inventory, [](const auto& a, const auto& b) {
         return a.device < b.device;
         });
 
