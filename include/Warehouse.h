@@ -11,11 +11,9 @@ private:
 public:
     explicit Warehouse(std::string_view name);
 
-    void addDevice(const ElectronicDevice& device, int quantity);
     void printWarehouseState() const;
     ElectronicDevice* findDeviceByModel(std::string_view model);
     StockItem* findStockItemByModel(std::string_view model);
-    bool removeDeviceByModel(std::string_view model);
     void sortByPrice();
 
     Warehouse& operator+=(const StockItem& newItem);

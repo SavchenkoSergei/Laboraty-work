@@ -4,10 +4,6 @@
 
 Warehouse::Warehouse(std::string_view name) : warehouseName(name) {}
 
-void Warehouse::addDevice(const ElectronicDevice& device, int quantity) {
-    *this += StockItem{ device, quantity };
-}
-
 Warehouse& Warehouse::operator+=(const StockItem& newItem) {
     if (newItem.quantity <= 0) {
         std::cout << "Склад \"" << warehouseName << "\": ошибка, количество должно быть больше 0.\n";
@@ -42,12 +38,6 @@ Warehouse& Warehouse::operator-=(std::string_view model) {
         std::cout << "Ошибка: товар с моделью \"" << model << "\" не найден на складе для удаления.\n";
     }
     return *this;
-}
-
-bool Warehouse::removeDeviceByModel(std::string_view model) {
-    auto initialSize = inventory.size();
-    *this -= model;
-    return inventory.size() < initialSize;
 }
 
 void Warehouse::printWarehouseState() const {

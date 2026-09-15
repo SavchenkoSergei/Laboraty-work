@@ -230,5 +230,5 @@ void Menu::handleRemoveDevice() {
     std::cout << "Введите модель устройства для удаления: ";
     std::getline(std::cin, model);
 
-    warehouse.removeDeviceByModel(model);
+    warehouse -= model;
 }
