@@ -16,4 +16,7 @@ public:
     void printWarehouseState() const;
     ElectronicDevice* findDeviceByModel(std::string_view model);
     bool removeDeviceByModel(std::string_view model);
+
+    Warehouse& operator+=(const StockItem& newItem);
+    Warehouse& operator-=(std::string_view model);
 };

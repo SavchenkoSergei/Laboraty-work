@@ -54,3 +54,7 @@ void ElectronicDevice::printInfo() const {
         << ", Гарантия: " << warrantyMonths << " мес."
         << ", Особенность: " << extraSpec << "\n";
 }
+
+bool ElectronicDevice::operator==(const ElectronicDevice& other) const {
+    return (model == other.model) && (manufacturer == other.manufacturer);
+}

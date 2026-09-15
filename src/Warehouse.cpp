@@ -4,20 +4,45 @@
 Warehouse::Warehouse(std::string_view name) : warehouseName(name) {}
 
 void Warehouse::addDevice(const ElectronicDevice& device, int quantity) {
+    *this += StockItem{ device, quantity };
+}
+
+Warehouse& Warehouse::operator+=(const StockItem& newItem) {
+    if (newItem.quantity <= 0) {
+        std::cout << "Склад \"" << warehouseName << "\": ошибка, количество должно быть больше 0.\n";
+        return *this;
+    }
+
     for (auto& item : inventory) {
-        if (item.device.getModel() == device.getModel() &&
-            item.device.getManufacturer() == device.getManufacturer()) {
-            item.quantity += quantity;
-            std::cout << "Склад \"" << warehouseName << "\": добавлено " << quantity
-                << " шт. к существующему товару " << device.getModel() << "\n";
-            return;
+        if (item.device == newItem.device) {
+            item.quantity += newItem.quantity;
+            std::cout << "Склад \"" << warehouseName << "\": добавлено " << newItem.quantity
+                << " шт. к существующему товару " << newItem.device.getModel() << "\n";
+            return *this;
         }
     }
-    StockItem newItem{ device, quantity };
     inventory.push_back(newItem);
-    std::cout << "Склад \"" << warehouseName << "\": новый товар \"" << device.getModel()
+    std::cout << "Склад \"" << warehouseName << "\": новый товар \"" << newItem.device.getModel()
         << "\" успешно добавлен в каталог.\n";
+    return *this;
 }
+
+Warehouse& Warehouse::operator-=(std::string_view model) {
+    auto initialSize = inventory.size();
+
+    std::erase_if(inventory, [model](const StockItem& item) {
+        return item.device.getModel() == model;
+        });
+
+    if (inventory.size() < initialSize) {
+        std::cout << "Товар с моделью \"" << model << "\" успешно удален со склада.\n";
+    }
+    else {
+        std::cout << "Ошибка: товар с моделью \"" << model << "\" не найден на складе для удаления.\n";
+    }
+    return *this;
+}
+
 
 void Warehouse::printWarehouseState() const {
     std::cout << "\n=== Состояние склада: \"" << warehouseName << "\" ===\n";

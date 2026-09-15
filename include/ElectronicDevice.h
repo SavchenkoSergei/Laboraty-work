@@ -31,4 +31,6 @@ public:
     void setExtraSpec(std::string_view newExtra);
 
     void printInfo() const;
+
+    bool operator==(const ElectronicDevice& other) const;
 };
