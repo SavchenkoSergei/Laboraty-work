@@ -22,15 +22,18 @@ void Menu::run() {
             handleAddDevice();
             break;
         case 3:
-            handleEditDeviceProperties();
+            handleLoadTestData();
             break;
         case 4:
-            handleGetIndividualCharacteristics();
+            handleEditDeviceProperties();
             break;
         case 5:
-            handleRemoveDevice();
+            handleGetIndividualCharacteristics();
             break;
         case 6:
+            handleRemoveDevice();
+            break;
+        case 7:
             handleSortByPrice();
             break;
         case 0:
@@ -43,39 +46,44 @@ void Menu::run() {
     }
 }
 
+void Menu::handleLoadTestData() {
+    ElectronicDevice dev1("Смартфон", "Galaxy S23", "Samsung", 2500.0, 12, "AMOLED экран, 128GB");
+    ElectronicDevice dev2("Ноутбук", "MacBook Pro", "Apple", 6000.0, 24, "M2 Pro, 16GB");
+    ElectronicDevice dev3("Наушники", "AirPods Pro", "Apple", 750.0, 12, "Активное шумоподавление");
+
+    warehouse += StockItem{ dev1, 5 };
+    warehouse += StockItem{ dev2, 2 };
+    warehouse += StockItem{ dev3, 10 };
+
+    std::cout << "Тестовый набор из 3 устройств успешно загружен на склад!\n";
+}
+
 void Menu::handleSortByPrice() {
     warehouse.sortByPrice();
 }
 
-void Menu::handleAddDevice(){
-    std::string type;
-    std::string model;
-    std::string manufacturer;
-    std::string extraSpec;
-    double price = 0;
-    int warranty = 0;
+void Menu::handleAddDevice() {
+    ElectronicDevice newDev("", "", "", 0.0, 0, "");
+    std::cin >> newDev;
+
+    if (std::cin.fail()) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        std::cout << "Операция добавления отменена из-за неверного ввода.\n";
+        return;
+    }
+
     int quantity = 0;
-
-    std::cout << "Введите тип товара: ";
-    std::getline(std::cin, type);
-    std::cout << "Введите модель: ";
-    std::getline(std::cin, model);
-    std::cout << "Введите производителя: ";
-    std::getline(std::cin, manufacturer);
-
-    std::cout << "Введите цену (руб.): ";
-    std::cin >> price;
-    std::cout << "Введите гарантию (мес.): ";
-    std::cin >> warranty;
     std::cout << "Введите количество на склад: ";
-    std::cin >> quantity;
+    if (!(std::cin >> quantity) || quantity <= 0) {
+        std::cout << "Ошибка: некорректное количество!\n";
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        return;
+    }
     std::cin.ignore(10000, '\n');
 
-    std::cout << "Введите доп. характеристики: ";
-    std::getline(std::cin, extraSpec);
-
-    ElectronicDevice newDev(type, model, manufacturer, price, warranty, extraSpec);
-    warehouse.addDevice(newDev, quantity);
+    warehouse += StockItem{ newDev, quantity };
 }
 
 void Menu::updateType(ElectronicDevice& device) const{
@@ -104,14 +112,7 @@ void Menu::updatePrice(ElectronicDevice& device) const {
     std::cout << "Введите новую цену: ";
     std::cin >> price;
     std::cin.ignore(10000, '\n');
-
-    if (price < 0) {
-        std::cout << "Ошибка: цена не может быть отрицательной!\n";
-        return;
-    }
-
     device.setPrice(price);
-    std::cout << "Цена успешно обновлена.\n";
 }
 
 void Menu::updateWarranty(ElectronicDevice& device) const {
@@ -119,14 +120,7 @@ void Menu::updateWarranty(ElectronicDevice& device) const {
     std::cout << "Введите новый гарантийный срок: ";
     std::cin >> warranty;
     std::cin.ignore(10000, '\n');
-
-    if (warranty < 0) {
-        std::cout << "Ошибка: гарантийный срок не может быть отрицательным!\n";
-        return;
-    }
-
     device.setWarrantyMonths(warranty);
-    std::cout << "Гарантийный срок успешно обновлён.\n";
 }
 
 void Menu::updateExtraSpec(ElectronicDevice& device) const {
@@ -204,32 +198,29 @@ void Menu::handleEditDeviceProperties() {
 
 void Menu::handleGetIndividualCharacteristics() {
     std::string model;
-    std::cout << "Введите модель товара для просмотра отдельных характеристик: ";
+    std::cout << "Введите модель товара для просмотра: ";
     std::getline(std::cin, model);
 
-    const ElectronicDevice* foundDevice = warehouse.findDeviceByModel(model);
-    if (foundDevice == nullptr) {
+    const StockItem* foundItem = warehouse.findStockItemByModel(model);
+    if (foundItem == nullptr) {
         std::cout << "Товар с такой моделью не найден на складе!\n";
         return;
     }
 
-    std::cout << "\n--- Отдельные характеристики товара ---\n"
-        << "Тип: " << foundDevice->getType() << "\n"
-        << "Модель: " << foundDevice->getModel() << "\n"
-        << "Производитель: " << foundDevice->getManufacturer() << "\n"
-        << "Цена: " << foundDevice->getPrice() << " руб.\n"
-        << "Гарантия: " << foundDevice->getWarrantyMonths() << " мес.\n"
-        << "Доп. характеристика: " << foundDevice->getExtraSpec() << "\n";
+    std::cout << "\n--- Информация о товаре ---\n"
+        << "Остаток на складе: " << foundItem->quantity << " шт.\n"
+        << "Характеристики: " << foundItem->device << "\n\n";
 }
 
 void Menu::showMenu() const {
     std::cout << "\n----------------- МЕНЮ СКЛАДА -----------------\n"
         << "1. Показать каталог и состояние склада\n"
         << "2. Добавить новый товар\n"
-        << "3. Изменить характеристики товара\n"
-        << "4. Посмотреть информацию об отдельном товаре\n"
-        << "5. Удалить товар со склада\n"
-        << "6. Отсортировать склад по цене\n"
+        << "3. Быстрая загрузка тестовых товаров\n"
+        << "4. Изменить характеристики товара\n"
+        << "5. Посмотреть информацию об отдельном товаре\n"
+        << "6. Удалить товар со склада\n"
+        << "7. Отсортировать склад по цене\n"
         << "0. Выход\n"
         << "Выберите пункт меню: ";
 }
@@ -237,13 +228,7 @@ void Menu::showMenu() const {
 void Menu::handleRemoveDevice() {
     std::string model;
     std::cout << "Введите модель устройства для удаления: ";
-
     std::getline(std::cin, model);
 
-    if (warehouse.removeDeviceByModel(model)) {
-        std::cout << "Товар успешно удален.\n";
-    }
-    else {
-        std::cout << "Товар не найден.\n";
-    }
+    warehouse.removeDeviceByModel(model);
 }

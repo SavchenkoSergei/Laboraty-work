@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <string_view>
-#include <compare>
+#include <iostream>
 
 class ElectronicDevice {
 private:
@@ -30,9 +30,22 @@ public:
     void setPrice(double newPrice);
     void setWarrantyMonths(int months);
     void setExtraSpec(std::string_view newExtra);
-
-    void printInfo() const;
+    void print(std::ostream& os) const;
+    void read(std::istream& is);
 
     bool operator==(const ElectronicDevice& other) const;
-    std::partial_ordering operator<=>(const ElectronicDevice& other) const;
+
+    std::partial_ordering operator<=>(const ElectronicDevice& other) const {
+        return price <=> other.price;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const ElectronicDevice& device) {
+        device.print(os);
+        return os;
+    }
+
+    friend std::istream& operator>>(std::istream& is, ElectronicDevice& device) {
+        device.read(is);
+        return is;
+    }
 };

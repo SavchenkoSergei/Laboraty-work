@@ -44,6 +44,11 @@ Warehouse& Warehouse::operator-=(std::string_view model) {
     return *this;
 }
 
+bool Warehouse::removeDeviceByModel(std::string_view model) {
+    auto initialSize = inventory.size();
+    *this -= model;
+    return inventory.size() < initialSize;
+}
 
 void Warehouse::printWarehouseState() const {
     std::cout << "\n=== Состояние склада: \"" << warehouseName << "\" ===\n";
@@ -54,7 +59,7 @@ void Warehouse::printWarehouseState() const {
 
     for (size_t i = 0; i < inventory.size(); ++i) {
         std::cout << i + 1 << ". Остаток: " << inventory[i].quantity << " шт. | ";
-        inventory[i].device.printInfo();
+        std::cout << inventory[i].device << "\n";
     }
     std::cout << "\n";
 }
@@ -68,14 +73,13 @@ ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
     return nullptr;
 }
 
-bool Warehouse::removeDeviceByModel(std::string_view model) {
-    auto initialSize = inventory.size();
-
-    std::erase_if(inventory, [model](const StockItem& item) {
-        return item.device.getModel() == model;
-        });
-
-    return inventory.size() < initialSize;
+StockItem* Warehouse::findStockItemByModel(std::string_view model) {
+    for (auto& item : inventory) {
+        if (item.device.getModel() == model) {
+            return &item;
+        }
+    }
+    return nullptr;
 }
 
 void Warehouse::sortByPrice() {

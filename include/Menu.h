@@ -8,6 +8,7 @@ private:
 
     void showMenu() const;
     void handleAddDevice();
+    void handleLoadTestData();
     void handleEditDeviceProperties();
     void handleGetIndividualCharacteristics();
     void handleRemoveDevice();
