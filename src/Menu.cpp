@@ -2,7 +2,45 @@
 #include <iostream>
 #include <string>
 
-void handleAddDevice(Warehouse& warehouse) {
+Menu::Menu(Warehouse& wh) : warehouse(wh) {}
+
+void Menu::run() {
+    int choice = -1;
+    while (choice != 0) {
+        showMenu();
+        if (!(std::cin >> choice)) {
+            std::cout << "Некорректный ввод. Завершение работы.\n";
+            break;
+        }
+        std::cin.ignore(10000, '\n');
+
+        switch (choice) {
+        case 1:
+            warehouse.printWarehouseState();
+            break;
+        case 2:
+            handleAddDevice();
+            break;
+        case 3:
+            handleEditDeviceProperties();
+            break;
+        case 5:
+            handleGetIndividualCharacteristics();
+            break;
+        case 6:
+            handleRemoveDevice();
+            break;
+        case 0:
+            std::cout << "Выход из программы. До свидания!\n";
+            break;
+        default:
+            std::cout << "Неизвестный пункт меню. Попробуйте снова.\n";
+            break;
+        }
+    }
+}
+
+void Menu::handleAddDevice(){
     std::string type;
     std::string model;
     std::string manufacturer;
@@ -33,28 +71,28 @@ void handleAddDevice(Warehouse& warehouse) {
     warehouse.addDevice(newDev, quantity);
 }
 
-static void updateType(ElectronicDevice& device) {
+void Menu::updateType(ElectronicDevice& device) const{
     std::string buffer;
     std::cout << "Введите новый тип: ";
     std::getline(std::cin, buffer);
     device.setType(buffer);
 }
 
-static void updateModel(ElectronicDevice& device) {
+void Menu::updateModel(ElectronicDevice& device) const{
     std::string buffer;
     std::cout << "Введите новую модель: ";
     std::getline(std::cin, buffer);
     device.setModel(buffer);
 }
 
-static void updateManufacturer(ElectronicDevice& device) {
+void Menu::updateManufacturer(ElectronicDevice& device) const {
     std::string buffer;
     std::cout << "Введите нового производителя: ";
     std::getline(std::cin, buffer);
     device.setManufacturer(buffer);
 }
 
-static void updatePrice(ElectronicDevice& device) {
+void Menu::updatePrice(ElectronicDevice& device) const {
     double price = 0.0;
     std::cout << "Введите новую цену: ";
     std::cin >> price;
@@ -69,7 +107,7 @@ static void updatePrice(ElectronicDevice& device) {
     std::cout << "Цена успешно обновлена.\n";
 }
 
-static void updateWarranty(ElectronicDevice& device) {
+void Menu::updateWarranty(ElectronicDevice& device) const {
     int warranty = 0;
     std::cout << "Введите новый гарантийный срок: ";
     std::cin >> warranty;
@@ -84,14 +122,14 @@ static void updateWarranty(ElectronicDevice& device) {
     std::cout << "Гарантийный срок успешно обновлён.\n";
 }
 
-static void updateExtraSpec(ElectronicDevice& device) {
+void Menu::updateExtraSpec(ElectronicDevice& device) const {
     std::string buffer;
     std::cout << "Введите новую доп. характеристику: ";
     std::getline(std::cin, buffer);
     device.setExtraSpec(buffer);
 }
 
-static void printEditMenu(const ElectronicDevice& device) {
+void Menu::printEditMenu(const ElectronicDevice& device) const{
     std::cout << "\n--- Редактирование характеристик товара (" << device.getModel() << ") ---\n"
         << "1. Изменить тип (текущий: " << device.getType() << ")\n"
         << "2. Изменить модель (текущая: " << device.getModel() << ")\n"
@@ -103,7 +141,7 @@ static void printEditMenu(const ElectronicDevice& device) {
         << "Выберите пункт: ";
 }
 
-static void editDeviceMenu(ElectronicDevice& device) {
+void Menu::editDeviceMenu(ElectronicDevice& device) const{
     int subChoice = -1;
     while (subChoice != 0) {
         printEditMenu(device);
@@ -143,7 +181,7 @@ static void editDeviceMenu(ElectronicDevice& device) {
     }
 }
 
-void handleEditDeviceProperties(Warehouse& warehouse) {
+void Menu::handleEditDeviceProperties() {
     std::string model;
     std::cout << "Введите модель товара для изменения характеристик: ";
     std::getline(std::cin, model);
@@ -157,7 +195,7 @@ void handleEditDeviceProperties(Warehouse& warehouse) {
     editDeviceMenu(*foundDevice);
 }
 
-void handleGetIndividualCharacteristics(Warehouse& warehouse) {
+void Menu::handleGetIndividualCharacteristics() {
     std::string model;
     std::cout << "Введите модель товара для просмотра отдельных характеристик: ";
     std::getline(std::cin, model);
@@ -177,7 +215,7 @@ void handleGetIndividualCharacteristics(Warehouse& warehouse) {
         << "Доп. характеристика: " << foundDevice->getExtraSpec() << "\n";
 }
 
-void showMenu() {
+void Menu::showMenu() const{
     std::cout << "\n----------------- МЕНЮ СКЛАДА -----------------\n"
         << "1. Показать каталог и состояние склада\n"
         << "2. Добавить новый товар\n"
@@ -188,7 +226,7 @@ void showMenu() {
         << "Выберите пункт меню: ";
 }
 
-void handleRemoveDevice(Warehouse& warehouse) {
+void Menu::handleRemoveDevice() {
     std::string model;
     std::cout << "Введите модель устройства для удаления: ";
 
