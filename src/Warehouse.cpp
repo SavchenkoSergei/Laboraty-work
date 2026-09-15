@@ -1,5 +1,6 @@
 ﻿#include "Warehouse.h"
 #include <iostream>
+#include <algorithm>
 
 Warehouse::Warehouse(std::string_view name) : warehouseName(name) {}
 
@@ -75,4 +76,17 @@ bool Warehouse::removeDeviceByModel(std::string_view model) {
         });
 
     return inventory.size() < initialSize;
+}
+
+void Warehouse::sortByPrice() {
+    if (inventory.empty()) {
+        std::cout << "Склад пуст, сортировать нечего.\n";
+        return;
+    }
+
+    std::sort(inventory.begin(), inventory.end(), [](const StockItem& a, const StockItem& b) {
+        return a.device < b.device;
+        });
+
+    std::cout << "Склад \"" << warehouseName << "\" успешно отсортирован по цене (от дешевых к дорогим).\n";
 }

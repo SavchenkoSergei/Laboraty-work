@@ -1,5 +1,6 @@
 ﻿#include "ElectronicDevice.h"
 #include <iostream>
+#include <format>
 
 ElectronicDevice::ElectronicDevice(std::string_view devType, std::string_view devModel,
     std::string_view devManufacturer, double initialPrice,
@@ -57,4 +58,9 @@ void ElectronicDevice::printInfo() const {
 
 bool ElectronicDevice::operator==(const ElectronicDevice& other) const {
     return (model == other.model) && (manufacturer == other.manufacturer);
+}
+
+std::partial_ordering ElectronicDevice::operator<=>(const ElectronicDevice& other) const
+{
+    return price <=> other.price;
 }

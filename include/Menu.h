@@ -11,6 +11,7 @@ private:
     void handleEditDeviceProperties();
     void handleGetIndividualCharacteristics();
     void handleRemoveDevice();
+    void handleSortByPrice();
 
     void updateType(ElectronicDevice& device) const;
     void updateModel(ElectronicDevice& device) const;

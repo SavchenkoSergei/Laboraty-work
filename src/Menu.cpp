@@ -24,11 +24,14 @@ void Menu::run() {
         case 3:
             handleEditDeviceProperties();
             break;
-        case 5:
+        case 4:
             handleGetIndividualCharacteristics();
             break;
-        case 6:
+        case 5:
             handleRemoveDevice();
+            break;
+        case 6:
+            handleSortByPrice();
             break;
         case 0:
             std::cout << "Выход из программы. До свидания!\n";
@@ -38,6 +41,10 @@ void Menu::run() {
             break;
         }
     }
+}
+
+void Menu::handleSortByPrice() {
+    warehouse.sortByPrice();
 }
 
 void Menu::handleAddDevice(){
@@ -129,7 +136,7 @@ void Menu::updateExtraSpec(ElectronicDevice& device) const {
     device.setExtraSpec(buffer);
 }
 
-void Menu::printEditMenu(const ElectronicDevice& device) const{
+void Menu::printEditMenu(const ElectronicDevice& device) const {
     std::cout << "\n--- Редактирование характеристик товара (" << device.getModel() << ") ---\n"
         << "1. Изменить тип (текущий: " << device.getType() << ")\n"
         << "2. Изменить модель (текущая: " << device.getModel() << ")\n"
@@ -215,13 +222,14 @@ void Menu::handleGetIndividualCharacteristics() {
         << "Доп. характеристика: " << foundDevice->getExtraSpec() << "\n";
 }
 
-void Menu::showMenu() const{
+void Menu::showMenu() const {
     std::cout << "\n----------------- МЕНЮ СКЛАДА -----------------\n"
         << "1. Показать каталог и состояние склада\n"
         << "2. Добавить новый товар\n"
         << "3. Изменить характеристики товара\n"
         << "4. Посмотреть информацию об отдельном товаре\n"
-        << "5. Удаление товара\n"
+        << "5. Удалить товар со склада\n"
+        << "6. Отсортировать склад по цене\n"
         << "0. Выход\n"
         << "Выберите пункт меню: ";
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <string_view>
+#include <compare>
 
 class ElectronicDevice {
 private:
@@ -33,4 +34,5 @@ public:
     void printInfo() const;
 
     bool operator==(const ElectronicDevice& other) const;
+    std::partial_ordering operator<=>(const ElectronicDevice& other) const;
 };
