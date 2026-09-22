@@ -11,16 +11,16 @@ Warehouse& Warehouse::operator+=(const StockItem& newItem) {
     }
 
     for (auto& item : inventory) {
-        if (item.device == newItem.device) {
+        if (*(item.device) == *(newItem.device)) {
             item.quantity += newItem.quantity;
             std::cout << "Склад \"" << warehouseName << "\": добавлено " << newItem.quantity
-                << " шт. к существующему товару " << newItem.device.getModel() << "\n";
+                << " шт. к существующему товару " << newItem.device->getModel() << "\n";
             return *this;
         }
     }
-    inventory.push_back(newItem);
-    std::cout << "Склад \"" << warehouseName << "\": новый товар \"" << newItem.device.getModel()
-        << "\" успешно добавлен в каталог.\n";
+
+    inventory.push_back(StockItem{ newItem.device->clone(), newItem.quantity });
+    std::cout << "Склад \"" << warehouseName << "\": новый товар успешно добавлен в каталог.\n";
     return *this;
 }
 
@@ -28,7 +28,7 @@ Warehouse& Warehouse::operator-=(std::string_view model) {
     auto initialSize = inventory.size();
 
     std::erase_if(inventory, [model](const StockItem& item) {
-        return item.device.getModel() == model;
+        return item.device->getModel() == model;
         });
 
     if (inventory.size() < initialSize) {
@@ -49,15 +49,15 @@ void Warehouse::printWarehouseState() const {
 
     for (size_t i = 0; i < inventory.size(); ++i) {
         std::cout << i + 1 << ". Остаток: " << inventory[i].quantity << " шт. | ";
-        std::cout << inventory[i].device << "\n";
+        std::cout << *(inventory[i].device) << "\n";
     }
     std::cout << "\n";
 }
 
 ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
-    for (auto& item : inventory) {
-        if (item.device.getModel() == model) {
-            return &(item.device);
+    for (const auto& item : inventory) {
+        if (item.device->getModel() == model) {
+            return item.device.get();
         }
     }
     return nullptr;
@@ -65,7 +65,7 @@ ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
 
 StockItem* Warehouse::findStockItemByModel(std::string_view model) {
     for (auto& item : inventory) {
-        if (item.device.getModel() == model) {
+        if (item.device->getModel() == model) {
             return &item;
         }
     }
@@ -79,7 +79,7 @@ void Warehouse::sortByPrice() {
     }
 
     std::ranges::sort(inventory, [](const auto& a, const auto& b) {
-        return a.device < b.device;
+        return *(a.device) < *(b.device);
         });
 
     std::cout << "Склад \"" << warehouseName << "\" успешно отсортирован по цене (от дешевых к дорогим).\n";

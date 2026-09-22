@@ -1,7 +1,8 @@
 ﻿#pragma once
+#include <memory>
 #include "ElectronicDevice.h"
 
 struct StockItem {
-    ElectronicDevice device;
+    std::unique_ptr<ElectronicDevice> device;
     int quantity;
 };

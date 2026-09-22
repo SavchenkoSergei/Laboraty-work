@@ -2,39 +2,47 @@
 #include <string>
 #include <string_view>
 #include <iostream>
+#include <compare>
+#include <memory>
+#include <format>
 
 class ElectronicDevice {
 private:
-    std::string type;
-    std::string model;
+    std::string typeName;
     std::string manufacturer;
+    std::string model;
     double price;
     int warrantyMonths;
-    std::string extraSpec;
-public:
-    ElectronicDevice(std::string_view devType, std::string_view devModel,
-        std::string_view devManufacturer, double initialPrice,
-        int initialWarranty, std::string_view initialExtra);
 
-    std::string getType() const;
+public:
+    ElectronicDevice(std::string_view type, std::string_view devModel,
+        std::string_view devManufacturer, double initialPrice,
+        int initialWarranty);
+    virtual ~ElectronicDevice() = default;
+
+    virtual std::string getType() const { return typeName; }
+    virtual void setType(std::string_view newType) { typeName = newType; }
+
     std::string getModel() const;
     std::string getManufacturer() const;
     double getPrice() const;
     int getWarrantyMonths() const;
-    std::string getExtraSpec() const;
 
-    void setType(std::string_view newType);
-    void setModel(std::string_view newModel);
-    void setManufacturer(std::string_view newManufacturer);
     void setPrice(double newPrice);
     void setWarrantyMonths(int months);
-    void setExtraSpec(std::string_view newExtra);
-    void print(std::ostream& os) const;
-    void read(std::istream& is);
+    void setManufacturer(std::string_view newManufacturer);
+    void setModel(std::string_view newModel);
+
+    virtual std::string getExtraSpec() const { return ""; }
+    virtual void setExtraSpec(std::string_view spec);
+
+    virtual void print(std::ostream& os) const;
+    virtual void read(std::istream& is);
+
+    virtual std::unique_ptr<ElectronicDevice> clone() const = 0;
 
     bool operator==(const ElectronicDevice& other) const;
-
-    std::partial_ordering operator<=>(const ElectronicDevice& other) const {
+    auto operator<=>(const ElectronicDevice& other) const {
         return price <=> other.price;
     }
 

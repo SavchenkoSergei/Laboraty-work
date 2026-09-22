@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "Warehouse.h"
 #include "ElectronicDevice.h"
 
@@ -6,24 +7,29 @@ class Menu {
 private:
     Warehouse& warehouse;
 
-    void showMenu() const;
-    void handleAddDevice();
-    void handleLoadTestData();
-    void handleEditDeviceProperties();
-    void handleGetIndividualCharacteristics();
-    void handleRemoveDevice();
-    void handleSortByPrice();
+    int getMenuChoice() const;
 
-    void updateType(ElectronicDevice& device) const;
-    void updateModel(ElectronicDevice& device) const;
-    void updateManufacturer(ElectronicDevice& device) const;
-    void updatePrice(ElectronicDevice& device) const;
-    void updateWarranty(ElectronicDevice& device) const;
-    void updateExtraSpec(ElectronicDevice& device) const;
-    void editDeviceMenu(ElectronicDevice& device) const;
+    void printMainMenu() const;
+    void handleAddDevice();
+    void handleDeleteDevice();
+    void handlePrintWarehouse() const;
+    void handlePrintDeviceDetails() const;
+    void handleEditDevice();
+    void handleSortByPrice();
+    void handleLoadTestData();
+
+    void printAddDeviceMenu() const;
     void printEditMenu(const ElectronicDevice& device) const;
+    void editDeviceMenu(ElectronicDevice& device) const;
+
+    void editPrice(ElectronicDevice& device) const;
+    void editWarranty(ElectronicDevice& device) const;
+    void editManufacturer(ElectronicDevice& device) const;
+    void editModel(ElectronicDevice& device) const;
+    void editExtraSpec(ElectronicDevice& device) const;
 
 public:
     explicit Menu(Warehouse& wh);
+
     void run();
 };

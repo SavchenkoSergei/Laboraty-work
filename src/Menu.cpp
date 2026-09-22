@@ -1,234 +1,264 @@
 ﻿#include "Menu.h"
+#include "Warehouse.h"
+#include "ElectronicDevice.h"
+#include "Smartphone.h"
+#include "Tablet.h"
+#include "Laptop.h"
+#include "HomeAppliance.h"
 #include <iostream>
+#include <memory>
 #include <string>
 
 Menu::Menu(Warehouse& wh) : warehouse(wh) {}
 
+int Menu::getMenuChoice() const {
+    int choice = -1;
+    if (!(std::cin >> choice)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        std::cout << "Неверный ввод! Введите число.\n";
+        return -1;
+    }
+    std::cin.ignore(10000, '\n');
+    return choice;
+}
+
+void Menu::handleLoadTestData() {
+    warehouse += StockItem{ std::make_unique<Smartphone>("iPhone 15 Pro", "Apple", 4200.0, 12, 8, "iOS 17"), 15 };
+    warehouse += StockItem{ std::make_unique<Tablet>("Galaxy Tab S9", "Samsung", 2600.0, 24, 11.0, true), 8 };
+    warehouse += StockItem{ std::make_unique<Laptop>("ThinkPad X1 Carbon", "Lenovo", 6300.0, 36, "Intel Core i7-1370P", 57), 5 };
+    warehouse += StockItem{ std::make_unique<HomeAppliance>("Series 6 Washing Machine", "Bosch", 2200.0, 24, "A+++", 2300), 3 };
+    std::cout << "Тестовые данные успешно загружены на склад!\n";
+}
+
+void Menu::handlePrintDeviceDetails() const {
+    std::cout << "Введите название модели для просмотра: ";
+    std::string modelName;
+    std::getline(std::cin, modelName);
+
+    const auto* item = warehouse.findStockItemByModel(modelName);
+    if (item && item->device) {
+        std::cout << "\n=== Информация об устройстве ==="
+            << "\nХарактеристики: " << *item->device
+            << "\nКоличество на складе: " << item->quantity << " шт.\n";
+    }
+    else {
+        std::cout << "Устройство с моделью \"" << modelName << "\" не найдено.\n";
+    }
+}
+
+void Menu::printMainMenu() const {
+    std::cout << "\n=== Меню управления складом ===\n"
+        << "1. Добавить устройство\n"
+        << "2. Удалить устройство по модели\n"
+        << "3. Показать весь каталог\n"
+        << "4. Показать характеристики определенной модели\n"
+        << "5. Редактировать устройство\n"
+        << "6. Сортировать по цене\n"
+        << "7. Загрузить тестовые данные\n"
+        << "0. Выход\n"
+        << "Выберите пункт: ";
+}
+
 void Menu::run() {
     int choice = -1;
     while (choice != 0) {
-        showMenu();
-        if (!(std::cin >> choice)) {
-            std::cout << "Некорректный ввод. Завершение работы.\n";
-            break;
-        }
-        std::cin.ignore(10000, '\n');
+        printMainMenu();
+        choice = getMenuChoice();
 
         switch (choice) {
         case 1:
-            warehouse.printWarehouseState();
-            break;
-        case 2:
             handleAddDevice();
             break;
+        case 2:
+            handleDeleteDevice();
+            break;
         case 3:
-            handleLoadTestData();
+            handlePrintWarehouse();
             break;
         case 4:
-            handleEditDeviceProperties();
+            handlePrintDeviceDetails();
             break;
         case 5:
-            handleGetIndividualCharacteristics();
+            handleEditDevice();
             break;
         case 6:
-            handleRemoveDevice();
-            break;
-        case 7:
             handleSortByPrice();
             break;
+        case 7:
+            handleLoadTestData();
+            break;
         case 0:
-            std::cout << "Выход из программы. До свидания!\n";
+            std::cout << "Выход из программы...\n";
             break;
         default:
-            std::cout << "Неизвестный пункт меню. Попробуйте снова.\n";
+            std::cout << "Неверный пункт меню. Попробуйте снова.\n";
             break;
         }
     }
 }
 
-void Menu::handleLoadTestData() {
-    ElectronicDevice dev1("Смартфон", "Galaxy S23", "Samsung", 2500.0, 12, "AMOLED экран, 128GB");
-    ElectronicDevice dev2("Ноутбук", "MacBook Pro", "Apple", 6000.0, 24, "M2 Pro, 16GB");
-    ElectronicDevice dev3("Наушники", "AirPods Pro", "Apple", 750.0, 12, "Активное шумоподавление");
-
-    warehouse += StockItem{ dev1, 5 };
-    warehouse += StockItem{ dev2, 2 };
-    warehouse += StockItem{ dev3, 10 };
-
-    std::cout << "Тестовый набор из 3 устройств успешно загружен на склад!\n";
-}
-
-void Menu::handleSortByPrice() {
-    warehouse.sortByPrice();
+void Menu::printAddDeviceMenu() const {
+    std::cout << "\n--- Добавление нового устройства ---\n"
+        << "1. Смартфон\n"
+        << "2. Планшет\n"
+        << "3. Ноутбук\n"
+        << "4. Бытовая техника\n"
+        << "0. Отмена\n"
+        << "Выберите тип устройства: ";
 }
 
 void Menu::handleAddDevice() {
-    ElectronicDevice newDev("", "", "", 0.0, 0, "");
-    std::cin >> newDev;
+    printAddDeviceMenu();
+    int typeChoice = getMenuChoice();
+
+    std::unique_ptr<ElectronicDevice> newDev = nullptr;
+
+    switch (typeChoice) {
+    case 1:
+        newDev = std::make_unique<Smartphone>("", "", 0, 0, 0, "");
+        break;
+    case 2:
+        newDev = std::make_unique<Tablet>("", "", 0, 0, 0, false);
+        break;
+    case 3:
+        newDev = std::make_unique<Laptop>("", "", 0, 0, "", 0);
+        break;
+    case 4:
+        newDev = std::make_unique<HomeAppliance>("", "", 0, 0, "", 0);
+        break;
+    case 0:
+        std::cout << "Возвращение в гланвное меню...\n";
+        return;
+    default:
+        std::cout << "Неверный тип устройства.\n";
+        return;
+    }
+
+    std::cin >> *newDev;
 
     if (std::cin.fail()) {
         std::cin.clear();
         std::cin.ignore(10000, '\n');
-        std::cout << "Операция добавления отменена из-за неверного ввода.\n";
+        std::cout << "Ошибка ввода.\n";
         return;
     }
 
-    int quantity = 0;
     std::cout << "Введите количество на склад: ";
-    if (!(std::cin >> quantity) || quantity <= 0) {
-        std::cout << "Ошибка: некорректное количество!\n";
+    if (int quantity = 0; std::cin >> quantity && quantity > 0) {
+        warehouse += StockItem{ std::move(newDev), quantity };
+        std::cout << "Устройство успешно добавлено на склад!\n";
+    }
+    else {
+        std::cout << "Некорректное количество.\n";
         std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        return;
     }
     std::cin.ignore(10000, '\n');
-
-    warehouse += StockItem{ newDev, quantity };
 }
 
-void Menu::updateType(ElectronicDevice& device) const{
-    std::string buffer;
-    std::cout << "Введите новый тип: ";
-    std::getline(std::cin, buffer);
-    device.setType(buffer);
-}
-
-void Menu::updateModel(ElectronicDevice& device) const{
-    std::string buffer;
-    std::cout << "Введите новую модель: ";
-    std::getline(std::cin, buffer);
-    device.setModel(buffer);
-}
-
-void Menu::updateManufacturer(ElectronicDevice& device) const {
-    std::string buffer;
-    std::cout << "Введите нового производителя: ";
-    std::getline(std::cin, buffer);
-    device.setManufacturer(buffer);
-}
-
-void Menu::updatePrice(ElectronicDevice& device) const {
-    double price = 0.0;
-    std::cout << "Введите новую цену: ";
-    std::cin >> price;
-    std::cin.ignore(10000, '\n');
-    device.setPrice(price);
-}
-
-void Menu::updateWarranty(ElectronicDevice& device) const {
-    int warranty = 0;
-    std::cout << "Введите новый гарантийный срок: ";
-    std::cin >> warranty;
-    std::cin.ignore(10000, '\n');
-    device.setWarrantyMonths(warranty);
-}
-
-void Menu::updateExtraSpec(ElectronicDevice& device) const {
-    std::string buffer;
-    std::cout << "Введите новую доп. характеристику: ";
-    std::getline(std::cin, buffer);
-    device.setExtraSpec(buffer);
-}
-
-void Menu::printEditMenu(const ElectronicDevice& device) const {
-    std::cout << "\n--- Редактирование характеристик товара (" << device.getModel() << ") ---\n"
-        << "1. Изменить тип (текущий: " << device.getType() << ")\n"
-        << "2. Изменить модель (текущая: " << device.getModel() << ")\n"
-        << "3. Изменить производителя (текущий: " << device.getManufacturer() << ")\n"
-        << "4. Изменить цену (текущая: " << device.getPrice() << " руб.)\n"
-        << "5. Изменить гарантию (текущая: " << device.getWarrantyMonths() << " мес.)\n"
-        << "6. Изменить доп. характеристику (текущая: " << device.getExtraSpec() << ")\n"
-        << "0. Вернуться в главное меню\n"
-        << "Выберите пункт: ";
-}
-
-void Menu::editDeviceMenu(ElectronicDevice& device) const{
-    int subChoice = -1;
-    while (subChoice != 0) {
-        printEditMenu(device);
-
-        if (!(std::cin >> subChoice)) {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            break;
-        }
-        std::cin.ignore(10000, '\n');
-
-        switch (subChoice) {
-        case 1: 
-            updateType(device);
-            break;
-        case 2: 
-            updateModel(device); 
-            break;
-        case 3: 
-            updateManufacturer(device); 
-            break;
-        case 4: 
-            updatePrice(device); 
-            break;
-        case 5: 
-            updateWarranty(device); 
-            break;
-        case 6: 
-            updateExtraSpec(device); 
-            break;
-        case 0: 
-            break;
-        default: 
-            std::cout << "Неверный пункт меню.\n"; 
-            break;
-        }
-    }
-}
-
-void Menu::handleEditDeviceProperties() {
-    std::string model;
-    std::cout << "Введите модель товара для изменения характеристик: ";
-    std::getline(std::cin, model);
-
-    ElectronicDevice* foundDevice = warehouse.findDeviceByModel(model);
-    if (foundDevice == nullptr) {
-        std::cout << "Товар с такой моделью не найден на складе!\n";
-        return;
-    }
-
-    editDeviceMenu(*foundDevice);
-}
-
-void Menu::handleGetIndividualCharacteristics() {
-    std::string model;
-    std::cout << "Введите модель товара для просмотра: ";
-    std::getline(std::cin, model);
-
-    const StockItem* foundItem = warehouse.findStockItemByModel(model);
-    if (foundItem == nullptr) {
-        std::cout << "Товар с такой моделью не найден на складе!\n";
-        return;
-    }
-
-    std::cout << "\n--- Информация о товаре ---\n"
-        << "Остаток на складе: " << foundItem->quantity << " шт.\n"
-        << "Характеристики: " << foundItem->device << "\n\n";
-}
-
-void Menu::showMenu() const {
-    std::cout << "\n----------------- МЕНЮ СКЛАДА -----------------\n"
-        << "1. Показать каталог и состояние склада\n"
-        << "2. Добавить новый товар\n"
-        << "3. Быстрая загрузка тестовых товаров\n"
-        << "4. Изменить характеристики товара\n"
-        << "5. Посмотреть информацию об отдельном товаре\n"
-        << "6. Удалить товар со склада\n"
-        << "7. Отсортировать склад по цене\n"
-        << "0. Выход\n"
-        << "Выберите пункт меню: ";
-}
-
-void Menu::handleRemoveDevice() {
+void Menu::handleDeleteDevice() {
     std::string model;
     std::cout << "Введите модель устройства для удаления: ";
     std::getline(std::cin, model);
-
     warehouse -= model;
+}
+
+void Menu::handlePrintWarehouse() const{
+    warehouse.printWarehouseState();
+}
+
+void Menu::handleEditDevice() {
+    std::string model;
+    std::cout << "Введите модель устройства для редактирования: ";
+    std::getline(std::cin, model);
+
+    ElectronicDevice* dev = warehouse.findDeviceByModel(model);
+    if (!dev) {
+        std::cout << "Устройство с такой моделью не найдено.\n";
+        return;
+    }
+
+    editDeviceMenu(*dev);
+}
+
+void Menu::printEditMenu(const ElectronicDevice& device) const {
+    std::cout << "\n--- Редактирование устройства ---"
+        << "\n1. Изменить цену (" << device.getPrice() << " BYN)"
+        << "\n2. Изменить гарантию (" << device.getWarrantyMonths() << " мес.)"
+        << "\n3. Изменить производителя (" << device.getManufacturer() << ")"
+        << "\n4. Изменить модель (" << device.getModel() << ")"
+        << "\n5. Изменить специфические характеристики (" << device.getExtraSpec() << ")"
+        << "\n0. Завершить редактирование"
+        << "\nВыберите пункт: ";
+}
+
+void Menu::editPrice(ElectronicDevice& device) const {
+    std::cout << "Введите новую цену (BYN): ";
+    if (double newPrice = 0.0; std::cin >> newPrice) {
+        device.setPrice(newPrice);
+    }
+    std::cin.ignore(10000, '\n');
+}
+
+void Menu::editWarranty(ElectronicDevice& device) const {
+    std::cout << "Введите новый срок гарантии (мес.): ";
+    if (int newWarranty = 0; std::cin >> newWarranty) {
+        device.setWarrantyMonths(newWarranty);
+    }
+    std::cin.ignore(10000, '\n');
+}
+
+void Menu::editManufacturer(ElectronicDevice& device) const {
+    std::cout << "Введите нового производителя: ";
+    if (std::string newManufacturer; std::getline(std::cin, newManufacturer) && !newManufacturer.empty()) {
+        device.setManufacturer(newManufacturer);
+    }
+}
+
+void Menu::editModel(ElectronicDevice& device) const {
+    std::cout << "Введите новую модель: ";
+    if (std::string newModel; std::getline(std::cin, newModel) && !newModel.empty()) {
+        device.setModel(newModel);
+    }
+}
+
+void Menu::editExtraSpec(ElectronicDevice& device) const {
+    device.setExtraSpec("");
+    std::cout << "Доп. характеристики успешно обновлены!\n";
+}
+
+void Menu::editDeviceMenu(ElectronicDevice& device) const {
+    int choice = -1;
+    while (choice != 0) {
+        printEditMenu(device);
+        choice = getMenuChoice();
+
+        switch (choice) {
+        case 1:
+            editPrice(device);
+            break;
+        case 2:
+            editWarranty(device);
+            break;
+        case 3:
+            editManufacturer(device);
+            break;
+        case 4:
+            editModel(device);
+            break;
+        case 5:
+            editExtraSpec(device);
+            break;
+        case 0:
+            std::cout << "Редактирование завершено.\n";
+            break;
+        default:
+            std::cout << "Неверный пункт меню!\n";
+            break;
+        }
+    }
+}
+
+void Menu::handleSortByPrice() {
+    warehouse.sortByPrice();
 }
