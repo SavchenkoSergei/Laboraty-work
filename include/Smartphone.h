@@ -6,7 +6,7 @@
 
 class Smartphone : public ElectronicDevice {
 private:
-    int ramSizeGB;
+    int ramSize;
     std::string osName;
 
 public:

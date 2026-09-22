@@ -5,13 +5,13 @@ Laptop::Laptop(std::string_view devModel, std::string_view devManufacturer,
     double initialPrice, int initialWarranty,
     std::string_view cpu, int battery)
     : ElectronicDevice("Ноутбук", devModel, devManufacturer, initialPrice, initialWarranty),
-    cpuModel(cpu), batteryCapacityWh(battery) {
+    cpuModel(cpu), batteryCapacity(battery) {
 }
 
 void Laptop::print(std::ostream& os) const {
     ElectronicDevice::print(os);
     os << ", Процессор: " << cpuModel
-        << ", Батарея: " << batteryCapacityWh << " Вт*ч";
+        << ", Батарея: " << batteryCapacity << " Вт*ч";
 }
 
 void Laptop::read(std::istream& is) {
@@ -21,7 +21,7 @@ void Laptop::read(std::istream& is) {
     std::getline(is, cpuModel);
 
     std::cout << "Введите емкость батареи (Вт*ч): ";
-    if (!(is >> batteryCapacityWh) || batteryCapacityWh < 0) {
+    if (!(is >> batteryCapacity) || batteryCapacity < 0) {
         std::cout << "Ошибка: некорректная емкость батареи!\n";
         is.setstate(std::ios::failbit);
         return;
@@ -34,7 +34,7 @@ std::unique_ptr<ElectronicDevice> Laptop::clone() const {
 }
 
 std::string Laptop::getExtraSpec() const {
-    return std::format("Процессор: {}, Батарея: {} Вт*ч", cpuModel, batteryCapacityWh);
+    return std::format("Процессор: {}, Батарея: {} Вт*ч", cpuModel, batteryCapacity);
 }
 
 void Laptop::setExtraSpec(std::string_view spec) {
@@ -47,9 +47,8 @@ void Laptop::setExtraSpec(std::string_view spec) {
     }
 
     std::cout << "Введите новую емкость батареи (Вт*ч): ";
-    int newBattery = 0;
-    if (std::cin >> newBattery && newBattery > 0) {
-        batteryCapacityWh = newBattery;
+    if (int newBattery = 0; std::cin >> newBattery) {
+        batteryCapacity = newBattery;
     }
     std::cin.ignore(10000, '\n');
 }

@@ -7,7 +7,7 @@
 class Laptop : public ElectronicDevice {
 private:
     std::string cpuModel;
-    int batteryCapacityWh;
+    int batteryCapacity;
 
 public:
     Laptop(std::string_view devModel, std::string_view devManufacturer,

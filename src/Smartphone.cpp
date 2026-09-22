@@ -5,12 +5,12 @@ Smartphone::Smartphone(std::string_view devModel, std::string_view devManufactur
     double initialPrice, int initialWarranty,
     int ram, std::string_view os)
     : ElectronicDevice("Смартфон", devModel, devManufacturer, initialPrice, initialWarranty),
-    ramSizeGB(ram), osName(os) {
+    ramSize(ram), osName(os) {
 }
 
 void Smartphone::print(std::ostream& os) const {
     ElectronicDevice::print(os);
-    os << ", ОЗУ: " << ramSizeGB << " ГБ"
+    os << ", ОЗУ: " << ramSize << " ГБ"
         << ", ОС: " << osName;
 }
 
@@ -18,7 +18,7 @@ void Smartphone::read(std::istream& is) {
     ElectronicDevice::read(is);
 
     std::cout << "Введите объем ОЗУ (ГБ): ";
-    if (!(is >> ramSizeGB) || ramSizeGB < 0) {
+    if (!(is >> ramSize) || ramSize < 0) {
         std::cout << "Ошибка: некорректный объем ОЗУ!\n";
         is.setstate(std::ios::failbit);
         return;
@@ -34,15 +34,14 @@ std::unique_ptr<ElectronicDevice> Smartphone::clone() const {
 }
 
 std::string Smartphone::getExtraSpec() const {
-    return std::format("ОЗУ: {} ГБ, ОС: {}", ramSizeGB, osName);
+    return std::format("ОЗУ: {} ГБ, ОС: {}", ramSize, osName);
 }
 
 void Smartphone::setExtraSpec(std::string_view spec) {
     std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
     std::cout << "Введите новый объем ОЗУ (ГБ): ";
-    int newRam = 0;
-    if (std::cin >> newRam && newRam > 0) {
-        ramSizeGB = newRam;
+    if (int newRam = 0; std::cin >> newRam) {
+        ramSize = newRam;
     }
     std::cin.ignore(10000, '\n');
 
