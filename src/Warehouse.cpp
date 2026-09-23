@@ -4,7 +4,7 @@
 
 Warehouse::Warehouse(std::string_view name) : warehouseName(name) {}
 
-Warehouse& Warehouse::operator+=(const StockItem& newItem) {
+Warehouse& Warehouse::operator+=(StockItem newItem) {
     if (newItem.quantity <= 0) {
         std::cout << "Склад \"" << warehouseName << "\": ошибка, количество должно быть больше 0.\n";
         return *this;
@@ -19,8 +19,8 @@ Warehouse& Warehouse::operator+=(const StockItem& newItem) {
         }
     }
 
-    inventory.push_back(StockItem{ newItem.device->clone(), newItem.quantity });
     std::cout << "Склад \"" << warehouseName << "\": новый товар успешно добавлен в каталог.\n";
+    inventory.push_back(std::move(newItem));
     return *this;
 }
 

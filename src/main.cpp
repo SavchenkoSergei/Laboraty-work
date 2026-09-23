@@ -1,10 +1,11 @@
 ﻿#include <iostream>
 #include "Warehouse.h"
 #include "Menu.h"
+#include <Windows.h>
 
 int main() {
-    system("chcp 65001 > nul");
-    std::setlocale(LC_ALL, ".65001");
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
 
     Warehouse centralWarehouse("Центральный склад электроники");
 

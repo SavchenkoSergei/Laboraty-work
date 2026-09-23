@@ -17,6 +17,6 @@ public:
     StockItem* findStockItemByModel(std::string_view model);
     void sortByPrice();
 
-    Warehouse& operator+=(const StockItem& newItem);
+    Warehouse& operator+=(StockItem newItem);
     Warehouse& operator-=(std::string_view model);
 };

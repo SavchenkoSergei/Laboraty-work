@@ -20,8 +20,9 @@ public:
         int initialWarranty);
     virtual ~ElectronicDevice() = default;
 
-    virtual std::string getType() const { return typeName; }
-    virtual void setType(std::string_view newType) { typeName = newType; }
+    virtual std::string getType() const { 
+        return typeName; 
+    }
 
     std::string getModel() const;
     std::string getManufacturer() const;
