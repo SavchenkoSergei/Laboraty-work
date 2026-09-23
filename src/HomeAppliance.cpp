@@ -29,10 +29,6 @@ void HomeAppliance::read(std::istream& is) {
     is.ignore(10000, '\n');
 }
 
-std::unique_ptr<ElectronicDevice> HomeAppliance::clone() const {
-    return std::make_unique<HomeAppliance>(*this);
-}
-
 std::string HomeAppliance::getExtraSpec() const {
     return std::format("Энергокласс: {}, Мощность: {} Вт", energyClass, powerWatts);
 }

@@ -29,10 +29,6 @@ void Laptop::read(std::istream& is) {
     is.ignore(10000, '\n');
 }
 
-std::unique_ptr<ElectronicDevice> Laptop::clone() const {
-    return std::make_unique<Laptop>(*this);
-}
-
 std::string Laptop::getExtraSpec() const {
     return std::format("Процессор: {}, Батарея: {} Вт*ч", cpuModel, batteryCapacity);
 }

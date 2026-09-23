@@ -40,8 +40,6 @@ public:
     virtual void print(std::ostream& os) const;
     virtual void read(std::istream& is);
 
-    virtual std::unique_ptr<ElectronicDevice> clone() const = 0;
-
     bool operator==(const ElectronicDevice& other) const;
     auto operator<=>(const ElectronicDevice& other) const {
         return price <=> other.price;

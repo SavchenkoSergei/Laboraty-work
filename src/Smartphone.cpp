@@ -29,10 +29,6 @@ void Smartphone::read(std::istream& is) {
     std::getline(is, osName);
 }
 
-std::unique_ptr<ElectronicDevice> Smartphone::clone() const {
-    return std::make_unique<Smartphone>(*this);
-}
-
 std::string Smartphone::getExtraSpec() const {
     return std::format("ОЗУ: {} ГБ, ОС: {}", ramSize, osName);
 }

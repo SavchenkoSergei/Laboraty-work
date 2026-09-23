@@ -35,10 +35,6 @@ void Tablet::read(std::istream& is) {
     is.ignore(10000, '\n');
 }
 
-std::unique_ptr<ElectronicDevice> Tablet::clone() const {
-    return std::make_unique<Tablet>(*this);
-}
-
 std::string Tablet::getExtraSpec() const {
     return std::format("Экран: {}\", Стилус: {}", screenSizeInches, hasStylusSupport ? "Да" : "Нет");
 }

@@ -16,8 +16,6 @@ public:
     void print(std::ostream& os) const override;
     void read(std::istream& is) override;
 
-    std::unique_ptr<ElectronicDevice> clone() const override;
-
     std::string getExtraSpec() const override;
     void setExtraSpec(std::string_view spec) override;
 };
