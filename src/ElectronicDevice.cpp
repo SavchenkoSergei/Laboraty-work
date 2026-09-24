@@ -63,7 +63,3 @@ void ElectronicDevice::read(std::istream& is) {
     }
     is.ignore(10000, '\n');
 }
-
-void ElectronicDevice::setExtraSpec(std::string_view spec) {
-    // Базовая реализация по умолчанию
-}

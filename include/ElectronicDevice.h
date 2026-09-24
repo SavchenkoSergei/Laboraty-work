@@ -34,8 +34,8 @@ public:
     void setManufacturer(std::string_view newManufacturer);
     void setModel(std::string_view newModel);
 
-    virtual std::string getExtraSpec() const { return ""; }
-    virtual void setExtraSpec(std::string_view spec);
+    virtual std::string getExtraSpec() const = 0;
+    virtual void setExtraSpec(std::string_view spec) = 0;
 
     virtual void print(std::ostream& os) const;
     virtual void read(std::istream& is);
