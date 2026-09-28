@@ -1,22 +1,26 @@
 ﻿#pragma once
+
 #include <string>
 #include <string_view>
-#include <vector>
 #include "StockItem.h"
+#include "Collection.h"
 
 class Warehouse {
 private:
     std::string warehouseName;
-    std::vector<StockItem> inventory;
+    Collection<StockItem> inventory;       
+    Collection<std::string> actionHistory;  
+
+    static std::string getCurrentTimestamp();
 
 public:
     explicit Warehouse(std::string_view name);
 
     void printWarehouseState() const;
-    ElectronicDevice* findDeviceByModel(std::string_view model);
+    void showHistory() const;
     StockItem* findStockItemByModel(std::string_view model);
+    ElectronicDevice* findDeviceByModel(std::string_view model);
     void sortByPrice();
-
     Warehouse& operator+=(StockItem newItem);
     Warehouse& operator-=(std::string_view model);
 };

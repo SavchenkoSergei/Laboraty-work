@@ -28,6 +28,7 @@ void Menu::handleLoadTestData() {
     warehouse += StockItem{ std::make_unique<Tablet>("Galaxy Tab S9", "Samsung", 2600.0, 24, 11.0, true), 8 };
     warehouse += StockItem{ std::make_unique<Laptop>("ThinkPad X1 Carbon", "Lenovo", 6300.0, 36, "Intel Core i7-1370P", 57), 5 };
     warehouse += StockItem{ std::make_unique<HomeAppliance>("Series 6 Washing Machine", "Bosch", 2200.0, 24, "A+++", 2300), 3 };
+
     std::cout << "Тестовые данные успешно загружены на склад!\n";
 }
 
@@ -56,6 +57,7 @@ void Menu::printMainMenu() const {
         << "5. Редактировать устройство\n"
         << "6. Сортировать по цене\n"
         << "7. Загрузить тестовые данные\n"
+        << "8. Показать журнал операций (Логи)\n"
         << "0. Выход\n"
         << "Выберите пункт: ";
 }
@@ -87,6 +89,9 @@ void Menu::run() {
             break;
         case 7:
             handleLoadTestData();
+            break;
+        case 8:
+            warehouse.showHistory();
             break;
         case 0:
             std::cout << "Выход из программы...\n";
@@ -128,7 +133,7 @@ void Menu::handleAddDevice() {
         newDev = std::make_unique<HomeAppliance>("", "", 0, 0, "", 0);
         break;
     case 0:
-        std::cout << "Возвращение в гланвное меню...\n";
+        std::cout << "Возвращение в главное меню...\n";
         return;
     default:
         std::cout << "Неверный тип устройства.\n";
@@ -163,7 +168,7 @@ void Menu::handleDeleteDevice() {
     warehouse -= model;
 }
 
-void Menu::handlePrintWarehouse() const{
+void Menu::handlePrintWarehouse() const {
     warehouse.printWarehouseState();
 }
 
@@ -223,8 +228,11 @@ void Menu::editModel(ElectronicDevice& device) const {
 }
 
 void Menu::editExtraSpec(ElectronicDevice& device) const {
-    device.setExtraSpec("");
-    std::cout << "Доп. характеристики успешно обновлены!\n";
+    std::cout << "Введите новые доп. характеристики: ";
+    if (std::string newSpec; std::getline(std::cin, newSpec) && !newSpec.empty()) {
+        device.setExtraSpec(newSpec);
+        std::cout << "Доп. характеристики успешно обновлены!\n";
+    }
 }
 
 void Menu::editDeviceMenu(ElectronicDevice& device) const {

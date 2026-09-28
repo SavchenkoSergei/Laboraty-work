@@ -1,86 +1,88 @@
 ﻿#include "Warehouse.h"
 #include <iostream>
-#include <algorithm>
+#include <chrono>
+#include <format>
 
-Warehouse::Warehouse(std::string_view name) : warehouseName(name) {}
+std::string Warehouse::getCurrentTimestamp() {
+    const auto now = std::chrono::system_clock::now();
+    const auto sec = std::chrono::floor<std::chrono::seconds>(now);
+    const std::chrono::sys_days days = std::chrono::floor<std::chrono::days>(sec);
+    const std::chrono::year_month_day ymd{ days };
+    const std::chrono::hh_mm_ss hms{ sec - days };
+
+    return std::format("[{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}] ",
+        static_cast<int>(ymd.year()),
+        static_cast<unsigned>(ymd.month()),
+        static_cast<unsigned>(ymd.day()),
+        hms.hours().count(),
+        hms.minutes().count(),
+        hms.seconds().count());
+}
+
+Warehouse::Warehouse(std::string_view name) : warehouseName(name) {
+    actionHistory.add(std::format("{}Склад \"{}\" был создан.", getCurrentTimestamp(), warehouseName));
+}
+
+StockItem* Warehouse::findStockItemByModel(std::string_view model) {
+    return inventory.find([model](const StockItem& item) {
+        return item.device && item.device->getModel() == model;
+        });
+}
+
+ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
+    const auto* item = findStockItemByModel(model);
+    return item ? item->device.get() : nullptr;
+}
+
+void Warehouse::sortByPrice() {
+    inventory.sort([](const StockItem& a, const StockItem& b) {
+        if (!a.device || !b.device) return false;
+        return a.device->getPrice() < b.device->getPrice();
+        });
+    actionHistory.add(std::format("{}Выполнена сортировка товаров по цене.", getCurrentTimestamp()));
+}
 
 Warehouse& Warehouse::operator+=(StockItem newItem) {
-    if (newItem.quantity <= 0) {
-        std::cout << "Склад \"" << warehouseName << "\": ошибка, количество должно быть больше 0.\n";
-        return *this;
+    if (newItem.quantity <= 0) return *this;
+
+    if (auto* existing = inventory.find([&newItem](const StockItem& item) {
+        return *(item.device) == *(newItem.device);
+        })) {
+        existing->quantity += newItem.quantity;
+        actionHistory.add(std::format("{}Пополнение: {} (+{} шт.)",
+            getCurrentTimestamp(), newItem.device->getModel(), newItem.quantity));
+    }
+    else {
+        const auto modelName = std::string(newItem.device->getModel());
+        inventory.add(std::move(newItem));
+        actionHistory.add(std::format("{}Добавлен новый товар: {}", getCurrentTimestamp(), modelName));
     }
 
-    for (auto& item : inventory) {
-        if (*(item.device) == *(newItem.device)) {
-            item.quantity += newItem.quantity;
-            std::cout << "Склад \"" << warehouseName << "\": добавлено " << newItem.quantity
-                << " шт. к существующему товару " << newItem.device->getModel() << "\n";
-            return *this;
-        }
-    }
-
-    std::cout << "Склад \"" << warehouseName << "\": новый товар успешно добавлен в каталог.\n";
-    inventory.push_back(std::move(newItem));
     return *this;
 }
 
 Warehouse& Warehouse::operator-=(std::string_view model) {
-    auto initialSize = inventory.size();
-
-    std::erase_if(inventory, [model](const StockItem& item) {
+    if (inventory.removeIf([model](const StockItem& item) {
         return item.device->getModel() == model;
-        });
+        })) {
+        actionHistory.add(std::format("{}Удален товар по модели: {}", getCurrentTimestamp(), model));
+    }
 
-    if (inventory.size() < initialSize) {
-        std::cout << "Товар с моделью \"" << model << "\" успешно удален со склада.\n";
-    }
-    else {
-        std::cout << "Ошибка: товар с моделью \"" << model << "\" не найден на складе для удаления.\n";
-    }
     return *this;
 }
 
 void Warehouse::printWarehouseState() const {
-    std::cout << "\n=== Состояние склада: \"" << warehouseName << "\" ===\n";
-    if (inventory.empty()) {
-        std::cout << "Склад пуст.\n";
-        return;
-    }
+    std::cout << std::format("\n=== Состояние склада: \"{}\" ===\n", warehouseName);
+    inventory.print();
 
-    for (size_t i = 0; i < inventory.size(); ++i) {
-        std::cout << i + 1 << ". Остаток: " << inventory[i].quantity << " шт. | ";
-        std::cout << *(inventory[i].device) << "\n";
-    }
-    std::cout << "\n";
-}
-
-ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
-    for (const auto& item : inventory) {
-        if (item.device->getModel() == model) {
-            return item.device.get();
-        }
-    }
-    return nullptr;
-}
-
-StockItem* Warehouse::findStockItemByModel(std::string_view model) {
-    for (auto& item : inventory) {
-        if (item.device->getModel() == model) {
-            return &item;
-        }
-    }
-    return nullptr;
-}
-
-void Warehouse::sortByPrice() {
-    if (inventory.empty()) {
-        std::cout << "Склад пуст, сортировать нечего.\n";
-        return;
-    }
-
-    std::ranges::sort(inventory, [](const auto& a, const auto& b) {
-        return *(a.device) < *(b.device);
+    size_t activeCount = countMatches(inventory, [](const StockItem& item) {
+        return item.quantity > 0 && item.device != nullptr;
         });
 
-    std::cout << "Склад \"" << warehouseName << "\" успешно отсортирован по цене (от дешевых к дорогим).\n";
+    std::cout << "Всего позиций в наличии: " << activeCount << "\n";
+}
+
+void Warehouse::showHistory() const {
+    std::cout << "\n=== Журнал операций (Логи) ===\n";
+    actionHistory.print();
 }

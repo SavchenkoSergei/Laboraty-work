@@ -1,15 +1,19 @@
 ﻿#pragma once
 
 #include "Warehouse.h"
+#include "Collection.h"
 #include "ElectronicDevice.h"
+#include <memory>
 
 class Menu {
 private:
     Warehouse& warehouse;
 
-    int getMenuChoice() const;
+    Collection<std::unique_ptr<ElectronicDevice>> showcaseCollection;
 
+    int getMenuChoice() const;
     void printMainMenu() const;
+
     void handleAddDevice();
     void handleDeleteDevice();
     void handlePrintWarehouse() const;
