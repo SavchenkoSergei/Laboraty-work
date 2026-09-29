@@ -22,11 +22,19 @@ public:
         return items.size() < initialSize;
     }
 
-    T& getAt(size_t index) { return items[index]; }
-    const T& getAt(size_t index) const { return items[index]; }
+    T& getAt(size_t index) { 
+        return items[index];
+    }
+    const T& getAt(size_t index) const {
+        return items[index]; 
+    }
 
-    T& operator[](size_t index) { return items[index]; }
-    const T& operator[](size_t index) const { return items[index]; }
+    T& operator[](size_t index) { 
+        return items[index]; 
+    }
+    const T& operator[](size_t index) const { 
+        return items[index]; 
+    }
 
     template <typename Predicate>
     T* find(Predicate predicate) {
