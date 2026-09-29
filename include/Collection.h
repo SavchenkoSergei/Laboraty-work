@@ -12,8 +12,12 @@ private:
 public:
     Collection() = default;
 
-    void add(const T& item) { items.push_back(item); }
-    void add(T&& item) { items.push_back(std::move(item)); }
+    void add(const T& item) { 
+        items.push_back(item); 
+    }
+    void add(T&& item) { 
+        items.push_back(std::move(item)); 
+    }
 
     template <typename Predicate>
     bool removeIf(Predicate predicate) {
