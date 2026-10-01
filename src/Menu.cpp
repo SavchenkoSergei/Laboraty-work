@@ -38,7 +38,7 @@ void Menu::handlePrintDeviceDetails() const {
 void Menu::printMainMenu() const {
     std::cout << "\n=== Меню управления складом ===\n"
         << "1. Добавить устройство\n"
-        << "2. Удалить устройство по модели\n"
+        << "2. Удалить устройство\n"
         << "3. Списать/Уменьшить количество товара\n"
         << "4. Показать весь каталог\n"
         << "5. Показать характеристики определенной модели\n"
@@ -92,12 +92,10 @@ void Menu::handleClearWarehouse() {
 
 void Menu::handleReduceStock() {
     std::cout << "=== Списание товара со склада ===\n";
-    std::cout << "Введите номер позиции из каталога: ";
-    size_t catalogNumber = 0;
-    if (!(std::cin >> catalogNumber)) {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        throw InvalidDataException("Введен некорректный номер позиции");
+    StockItem* item = selectStockItem();
+
+    if (!item || !item->device) {
+        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
     }
 
     std::cout << "Введите количество для списания: ";
@@ -108,7 +106,24 @@ void Menu::handleReduceStock() {
         throw InvalidDataException("Введено некорректное количество");
     }
 
-    warehouse.reduceStockQuantity(catalogNumber, amount);
+    if (amount <= 0) {
+        throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
+    }
+
+    if (item->quantity < amount) {
+        throw ConstraintViolationException(std::format(
+            "Запрошено к списанию {} шт., однако на складе доступно всего {} шт. товара \"{}\"",
+            amount, item->quantity, item->device->getModel()
+        ));
+    }
+
+    auto modelName = std::string(item->device->getModel());
+    item->quantity -= amount;
+
+    if (item->quantity == 0) {
+        warehouse -= modelName;
+    }
+
     std::cout << "Товар успешно списан!\n";
 }
 
@@ -249,15 +264,15 @@ void Menu::handleAddDevice() {
 }
 
 void Menu::handleDeleteDevice() {
-    std::string model;
-    std::cout << "Введите модель устройства для удаления: ";
-    std::getline(std::cin >> std::ws, model);
+    std::cout << "=== Удаление устройства ===\n";
+    const StockItem* item = selectStockItem();
 
-    if (model.empty()) {
-        throw InvalidDataException("Название модели не может быть пустым");
+    if (!item || !item->device) {
+        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
     }
 
-    warehouse -= model;
+    warehouse -= item->device->getModel();
+    std::cout << "Запись успешно удалена со склада!\n";
 }
 
 void Menu::handlePrintWarehouse() const {
