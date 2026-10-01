@@ -96,7 +96,7 @@ void Warehouse::reduceStockQuantity(size_t catalogNumber, int amount) {
     actionHistory.add(std::format("{}Списано {} шт. товара \"{}\"", getCurrentTimestamp(), amount, modelName));
 
     if (item->quantity == 0) {
-        *this -= modelName;
+        actionHistory.add(std::format("{}Остаток товара \"{}\" достиг 0 шт.", getCurrentTimestamp(), modelName));
     }
 }
 
