@@ -358,8 +358,7 @@ void Menu::editDeviceMenu(ElectronicDevice& device) const {
             std::cout << "Редактирование завершено.\n";
             break;
         default:
-            std::cout << "Неверный пункт меню!\n";
-            break;
+            throw InvalidDataException(std::format("Выбран несуществующий пункт меню редактирования ({})", choice));
         }
     }
 }

@@ -120,13 +120,18 @@ Warehouse& Warehouse::operator+=(StockItem newItem) {
 }
 
 Warehouse& Warehouse::operator-=(std::string_view model) {
-    if (bool removed = inventory.removeIf([model](const StockItem& item) {
-        return item.device && item.device->getModel() == model;
-        }); !removed) {
-        throw ObjectNotFoundException(std::format("Невозможно удалить: модель \"{}\" не найдена", model));
+    if (StockItem* foundItem = findStockItemByModel(model); foundItem->quantity > 0) {
+        throw BrokenLinkException(std::format(
+            "Нельзя удалить позицию \"{}\", к ней привязаны товары на складе (в наличии: {} шт.). Сначала спишите остатки!",
+            std::string(model), foundItem->quantity
+        ));
     }
 
-    actionHistory.add(std::format("{}Удален товар по модели: {}", getCurrentTimestamp(), model));
+    inventory.removeIf([model](const StockItem& i) {
+        return i.device && i.device->getModel() == model;
+        });
+
+    actionHistory.add(std::format("{}Удален товар по модели: {}", getCurrentTimestamp(), std::string(model)));
     return *this;
 }
 
