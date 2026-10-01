@@ -65,9 +65,9 @@ void Menu::printMainMenu() const {
 
 void Menu::handleClearWarehouse() {
     std::cout << "Вы уверены, что хотите полностью очистить склад? (1 - Да, 0 - Нет): ";
-    int confirm = 0;
-    if (std::cin >> confirm && confirm == 1) {
+    if (int confirm = 0; (std::cin >> confirm) && confirm == 1) {
         warehouse.clearWarehouse();
+        std::cout << "Склад полностью очищен.\n";
     }
     else {
         std::cout << "Очистка отменена.\n";
