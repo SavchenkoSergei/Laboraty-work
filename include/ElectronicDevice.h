@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include "Exceptions.h"
 #include <string>
 #include <string_view>
 #include <iostream>

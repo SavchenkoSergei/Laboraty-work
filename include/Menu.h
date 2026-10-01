@@ -3,6 +3,7 @@
 #include "Warehouse.h"
 #include "Collection.h"
 #include "ElectronicDevice.h"
+#include "Exceptions.h"
 #include <memory>
 
 class Menu {
@@ -14,13 +15,16 @@ private:
 
     void handleAddDevice();
     void handleDeleteDevice();
+    void handleReduceStock();
     void handlePrintWarehouse() const;
     void handlePrintDeviceDetails() const;
-    void handleEditDevice();
+    void handleEditDevice() const;
     void handleSortByPrice();
     void handleLoadTestData();
     void handleClearWarehouse();
+    void handleException(std::exception_ptr eptr) const;
 
+    StockItem* selectStockItem() const;
     void printAddDeviceMenu() const;
     void printEditMenu(const ElectronicDevice& device) const;
     void editDeviceMenu(ElectronicDevice& device) const;

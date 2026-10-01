@@ -18,33 +18,40 @@ void Smartphone::read(std::istream& is) {
     ElectronicDevice::read(is);
 
     std::cout << "Введите объем ОЗУ (ГБ): ";
-    if (!(is >> ramSize) || ramSize < 0) {
-        std::cout << "Ошибка: некорректный объем ОЗУ!\n";
-        is.setstate(std::ios::failbit);
-        return;
+    if (!(is >> ramSize) || ramSize <= 0) {
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный объем ОЗУ");
     }
-    is.ignore(10000, '\n');
 
-    std::cout << "Введите операционную систему: ";
-    std::getline(is, osName);
-}
-
-std::string Smartphone::getExtraSpec() const {
-    return std::format("ОЗУ: {} ГБ, ОС: {}", ramSize, osName);
+    std::cout << "Введите ОС: ";
+    std::getline(is >> std::ws, osName);
+    if (osName.empty()) {
+        throw InvalidDataException("Название ОС не может быть пустым");
+    }
 }
 
 void Smartphone::setExtraSpec(std::string_view spec) {
     std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
     std::cout << "Введите новый объем ОЗУ (ГБ): ";
-    if (int newRam = 0; std::cin >> newRam) {
-        ramSize = newRam;
+    int newRam = 0;
+    if (!(std::cin >> newRam) || newRam <= 0) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный объем ОЗУ");
     }
+    ramSize = newRam;
     std::cin.ignore(10000, '\n');
 
     std::cout << "Введите новую ОС: ";
     std::string newOs;
-    std::getline(std::cin, newOs);
-    if (!newOs.empty()) {
-        osName = newOs;
+    std::getline(std::cin >> std::ws, newOs);
+    if (newOs.empty()) {
+        throw InvalidDataException("Название ОС не может быть пустым");
     }
+    osName = newOs;
+}
+
+std::string Smartphone::getExtraSpec() const {
+    return std::format("ОЗУ: {} ГБ, ОС: {}", ramSize, osName);
 }

@@ -14,37 +14,41 @@ void Laptop::print(std::ostream& os) const {
         << ", Батарея: " << batteryCapacity << " Вт*ч";
 }
 
-void Laptop::read(std::istream& is) {
-    ElectronicDevice::read(is);
-
-    std::cout << "Введите модель процессора: ";
-    std::getline(is, cpuModel);
-
-    std::cout << "Введите емкость батареи (Вт*ч): ";
-    if (!(is >> batteryCapacity) || batteryCapacity < 0) {
-        std::cout << "Ошибка: некорректная емкость батареи!\n";
-        is.setstate(std::ios::failbit);
-        return;
+void Laptop::setExtraSpec(std::string_view spec) {
+    std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
+    std::cout << "Введите новую модель процессора: ";
+    std::string newCpu;
+    std::getline(std::cin >> std::ws, newCpu);
+    if (newCpu.empty()) {
+        throw InvalidDataException("Название процессора не может быть пустым");
     }
-    is.ignore(10000, '\n');
+    cpuModel = newCpu;
+
+    std::cout << "Введите новую емкость батареи (Вт*ч): ";
+    int newBattery = 0;
+    if (!(std::cin >> newBattery) || newBattery <= 0) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная емкость батареи");
+    }
+    batteryCapacity = newBattery;
+    std::cin.ignore(10000, '\n');
 }
 
 std::string Laptop::getExtraSpec() const {
     return std::format("Процессор: {}, Батарея: {} Вт*ч", cpuModel, batteryCapacity);
 }
 
-void Laptop::setExtraSpec(std::string_view spec) {
-    std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
-    std::cout << "Введите новую модель процессора: ";
-    std::string newCpu;
-    std::getline(std::cin, newCpu);
-    if (!newCpu.empty()) {
-        cpuModel = newCpu;
-    }
+void Laptop::read(std::istream& is) {
+    ElectronicDevice::read(is);
 
-    std::cout << "Введите новую емкость батареи (Вт*ч): ";
-    if (int newBattery = 0; std::cin >> newBattery) {
-        batteryCapacity = newBattery;
+    std::cout << "Введите модель процессора: ";
+    std::getline(is >> std::ws, cpuModel);
+
+    std::cout << "Введите емкость батареи (Вт*ч): ";
+    if (!(is >> batteryCapacity) || batteryCapacity <= 0) {
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная емкость батареи");
     }
-    std::cin.ignore(10000, '\n');
 }

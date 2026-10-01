@@ -1,4 +1,5 @@
 ﻿#include "Warehouse.h"
+#include "Exceptions.h"
 #include <iostream>
 #include <chrono>
 #include <format>
@@ -20,18 +21,36 @@ std::string Warehouse::getCurrentTimestamp() {
 }
 
 Warehouse::Warehouse(std::string_view name) : warehouseName(name) {
+    if (warehouseName.empty()) {
+        throw InvalidDataException("Название склада не может быть пустым.");
+    }
     actionHistory.add(std::format("{}Склад \"{}\" был создан.", getCurrentTimestamp(), warehouseName));
 }
 
 StockItem* Warehouse::findStockItemByModel(std::string_view model) {
-    return inventory.find([model](const StockItem& item) {
+    auto* item = inventory.find([model](const StockItem& item) {
         return item.device && item.device->getModel() == model;
         });
+    if (!item) {
+        throw ObjectNotFoundException(std::format("Устройство с моделью \"{}\" не найдено на складе", model));
+    }
+    return item;
+}
+
+StockItem* Warehouse::getStockItemByCatalogNumber(size_t catalogNumber) {
+    if (catalogNumber == 0 || catalogNumber > inventory.size()) {
+        throw OutOfBoundsException(std::format(
+            "Позиция {} отсутствует в каталоге (всего элементов: {})",catalogNumber,inventory.size()));
+    }
+    return &inventory.getAt(catalogNumber - 1);
 }
 
 void Warehouse::clearWarehouse() {
+    if (inventory.empty()) {
+        throw InvalidOperationException("Невозможно очистить склад: он уже пуст.");
+    }
+
     inventory.clear();
-    std::cout << "Склад полностью очищен.\n";
     actionHistory.add(std::format("{}Выполнена очистка склада.", getCurrentTimestamp()));
 }
 
@@ -41,39 +60,70 @@ ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
 }
 
 void Warehouse::sortByPrice() {
+    if (inventory.empty()) {
+        throw InvalidOperationException("Невозможно отсортировать склад: каталог товаров пуст.");
+    }
+
     inventory.sort([](const StockItem& a, const StockItem& b) {
         if (!a.device || !b.device) return false;
         return a.device->getPrice() < b.device->getPrice();
         });
+
     actionHistory.add(std::format("{}Выполнена сортировка товаров по цене.", getCurrentTimestamp()));
 }
 
-Warehouse& Warehouse::operator+=(StockItem newItem) {
-    if (newItem.quantity <= 0) return *this;
+void Warehouse::reduceStockQuantity(size_t catalogNumber, int amount) {
+    if (amount <= 0) {
+        throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
+    }
+    StockItem* item = getStockItemByCatalogNumber(catalogNumber);
 
-    if (auto* existing = inventory.find([&newItem](const StockItem& item) {
-        return *(item.device) == *(newItem.device);
-        })) {
-        existing->quantity += newItem.quantity;
-        actionHistory.add(std::format("{}Пополнение: {} (+{} шт.)",
-            getCurrentTimestamp(), newItem.device->getModel(), newItem.quantity));
+    if (!item->device) {
+        throw InvalidOperationException("Товар на складе не имеет инициализированного устройства.");
     }
-    else {
-        const auto modelName = std::string(newItem.device->getModel());
-        inventory.add(std::move(newItem));
-        actionHistory.add(std::format("{}Добавлен новый товар: {}", getCurrentTimestamp(), modelName));
+
+    if (item->quantity < amount) {
+        throw InvalidOperationException(std::format("Недостаточно товара на складе! Доступно: {} шт., запрошено к списанию: {} шт.",
+            item->quantity, amount));
     }
+
+    auto modelName = std::string(item->device->getModel());
+
+    item->quantity -= amount;
+    actionHistory.add(std::format("{}Списано {} шт. товара \"{}\"", getCurrentTimestamp(), amount, modelName));
+
+    if (item->quantity == 0) {
+        *this -= modelName;
+    }
+}
+
+Warehouse& Warehouse::operator+=(StockItem newItem) {
+    if (!newItem.device) {
+        throw InvalidOperationException("Попытка добавить на склад пустой объект (nullptr)");
+    }
+    if (newItem.quantity <= 0) {
+        throw InvalidDataException(std::format("Количество товара должно быть больше нуля ({})", newItem.quantity));
+    }
+
+    if (inventory.find([&newItem](const StockItem& item) { return *(item.device) == *(newItem.device); }) != nullptr) {
+        throw DuplicateItemException(std::format("Модель \"{}\" уже существует на складе. Используйте редактирование.", newItem.device->getModel()));
+    }
+
+    const auto modelName = std::string(newItem.device->getModel());
+    inventory.add(std::move(newItem));
+    actionHistory.add(std::format("{}Добавлен новый товар: {}", getCurrentTimestamp(), modelName));
 
     return *this;
 }
 
 Warehouse& Warehouse::operator-=(std::string_view model) {
-    if (inventory.removeIf([model](const StockItem& item) {
-        return item.device->getModel() == model;
-        })) {
-        actionHistory.add(std::format("{}Удален товар по модели: {}", getCurrentTimestamp(), model));
+    if (bool removed = inventory.removeIf([model](const StockItem& item) {
+        return item.device && item.device->getModel() == model;
+        }); !removed) {
+        throw ObjectNotFoundException(std::format("Невозможно удалить: модель \"{}\" не найдена", model));
     }
 
+    actionHistory.add(std::format("{}Удален товар по модели: {}", getCurrentTimestamp(), model));
     return *this;
 }
 

@@ -5,50 +5,57 @@ Tablet::Tablet(std::string_view devModel, std::string_view devManufacturer,
     double initialPrice, int initialWarranty,
     double screenSize, bool stylus)
     : ElectronicDevice("Планшет", devModel, devManufacturer, initialPrice, initialWarranty),
-    screenSizeInches(screenSize), hasStylusSupport(stylus) {
+    screenSize(screenSize), stylusSupport(stylus) {
 }
 
 void Tablet::print(std::ostream& os) const {
     ElectronicDevice::print(os);
-    os << ", Диагональ: " << screenSizeInches << "\""
-        << ", Поддержка стилуса: " << (hasStylusSupport ? "Да" : "Нет");
+    os << ", Диагональ: " << screenSize << "\""
+        << ", Поддержка стилуса: " << (stylusSupport ? "Да" : "Нет");
 }
 
 void Tablet::read(std::istream& is) {
     ElectronicDevice::read(is);
 
     std::cout << "Введите диагональ экрана (дюймы): ";
-    if (!(is >> screenSizeInches) || screenSizeInches <= 0) {
-        std::cout << "Ошибка: некорректная диагональ!\n";
-        is.setstate(std::ios::failbit);
-        return;
+    if (!(is >> screenSize) || screenSize <= 0) {
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная диагональ экрана");
     }
 
     std::cout << "Поддержка стилуса (1 - Да, 0 - Нет): ";
     int stylusInput = 0;
-    if (!(is >> stylusInput)) {
-        std::cout << "Ошибка ввода!\n";
-        is.setstate(std::ios::failbit);
-        return;
+    if (!(is >> stylusInput) || (stylusInput != 0 && stylusInput != 1)) {
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный выбор поддержки стилуса");
     }
-    hasStylusSupport = (stylusInput != 0);
-    is.ignore(10000, '\n');
-}
-
-std::string Tablet::getExtraSpec() const {
-    return std::format("Экран: {}\", Стилус: {}", screenSizeInches, hasStylusSupport ? "Да" : "Нет");
+    stylusSupport = (stylusInput == 1);
 }
 
 void Tablet::setExtraSpec(std::string_view spec) {
     std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
     std::cout << "Введите новую диагональ (дюймы): ";
-    if (double newSize = 0.0; std::cin >> newSize && newSize > 0) {
-        screenSizeInches = newSize;
+    double newSize = 0.0;
+    if (!(std::cin >> newSize) || newSize <= 0) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная диагональ экрана");
     }
+    screenSize = newSize;
 
     std::cout << "Поддержка стилуса (1 - Да, 0 - Нет): ";
-    if (int stylusInput = 0; std::cin >> stylusInput) {
-        hasStylusSupport = (stylusInput != 0);
+    int stylusInput = 0;
+    if (!(std::cin >> stylusInput) || (stylusInput != 0 && stylusInput != 1)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный выбор поддержки стилуса");
     }
+    stylusSupport = (stylusInput == 1);
     std::cin.ignore(10000, '\n');
+}
+
+std::string Tablet::getExtraSpec() const {
+    return std::format("Экран: {}\", Стилус: {}", screenSize, stylusSupport ? "Да" : "Нет");
 }

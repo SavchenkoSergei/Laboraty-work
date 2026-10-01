@@ -5,8 +5,8 @@
 
 class Tablet : public ElectronicDevice {
 private:
-    double screenSizeInches;
-    bool hasStylusSupport;
+    double screenSize;
+    bool stylusSupport;
 
 public:
     Tablet(std::string_view devModel, std::string_view devManufacturer,

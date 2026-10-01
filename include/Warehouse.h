@@ -20,7 +20,9 @@ public:
     void showHistory() const;
     void clearWarehouse();
     StockItem* findStockItemByModel(std::string_view model);
+    StockItem* getStockItemByCatalogNumber(size_t catalogNumber);
     ElectronicDevice* findDeviceByModel(std::string_view model);
+    void reduceStockQuantity(size_t catalogNumber, int amount);
     void sortByPrice();
     Warehouse& operator+=(StockItem newItem);
     Warehouse& operator-=(std::string_view model);

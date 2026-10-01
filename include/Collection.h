@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "Exceptions.h"
 
 template <typename T>
 class Collection {
@@ -12,11 +13,12 @@ private:
 public:
     Collection() = default;
 
-    void add(const T& item) { 
-        items.push_back(item); 
+    void add(const T& item) {
+        items.push_back(item);
     }
-    void add(T&& item) { 
-        items.push_back(std::move(item)); 
+
+    void add(T&& item) {
+        items.push_back(std::move(item));
     }
 
     template <typename Predicate>
@@ -27,7 +29,17 @@ public:
     }
 
     const T& getAt(size_t index) const {
-        return items[index]; 
+        if (index >= items.size()) {
+            throw OutOfBoundsException(std::format("Индекс {} выходит за пределы коллекции (размер: {})", index, items.size()));
+        }
+        return items[index];
+    }
+
+    T& getAt(size_t index) {
+        if (index >= items.size()) {
+            throw OutOfBoundsException(std::format("Индекс {} выходит за пределы коллекции (размер: {})", index, items.size()));
+        }
+        return items[index];
     }
 
     template <typename Predicate>
@@ -51,16 +63,16 @@ public:
         std::ranges::sort(items, comp);
     }
 
-    size_t size() const { 
-        return items.size(); 
+    size_t size() const {
+        return items.size();
     }
 
-    bool empty() const { 
-        return items.empty(); 
+    bool empty() const {
+        return items.empty();
     }
 
-    void clear() { 
-        items.clear(); 
+    void clear() {
+        items.clear();
     }
 
     void print() const {

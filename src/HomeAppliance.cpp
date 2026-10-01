@@ -17,16 +17,18 @@ void HomeAppliance::print(std::ostream& os) const {
 void HomeAppliance::read(std::istream& is) {
     ElectronicDevice::read(is);
 
-    std::cout << "Введите класс энергоэффективности (например, A++): ";
-    std::getline(is, energyClass);
+    std::cout << "Введите класс энергопотребления (например, A++): ";
+    std::getline(is >> std::ws, energyClass);
+    if (energyClass.empty()) {
+        throw InvalidDataException("Класс энергопотребления не может быть пустым");
+    }
 
     std::cout << "Введите потребляемую мощность (Вт): ";
-    if (!(is >> powerWatts) || powerWatts < 0) {
-        std::cout << "Ошибка: некорректная мощность!\n";
-        is.setstate(std::ios::failbit);
-        return;
+    if (!(is >> powerWatts) || powerWatts <= 0) {
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная мощность");
     }
-    is.ignore(10000, '\n');
 }
 
 std::string HomeAppliance::getExtraSpec() const {
@@ -37,14 +39,19 @@ void HomeAppliance::setExtraSpec(std::string_view spec) {
     std::cout << "Текущие доп. характеристики: " << getExtraSpec() << "\n";
     std::cout << "Введите новый класс энергоэффективности: ";
     std::string newEnergy;
-    std::getline(std::cin, newEnergy);
-    if (!newEnergy.empty()) {
-        energyClass = newEnergy;
+    std::getline(std::cin >> std::ws, newEnergy);
+    if (newEnergy.empty()) {
+        throw InvalidDataException("Класс энергоэффективности не может быть пустым");
     }
+    energyClass = newEnergy;
 
     std::cout << "Введите новую мощность (Вт): ";
-    if (int newPower = 0; std::cin >> newPower && newPower > 0) {
-        powerWatts = newPower;
+    int newPower = 0;
+    if (!(std::cin >> newPower) || newPower <= 0) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная мощность");
     }
+    powerWatts = newPower;
     std::cin.ignore(10000, '\n');
 }

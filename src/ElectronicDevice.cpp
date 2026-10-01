@@ -5,28 +5,44 @@ ElectronicDevice::ElectronicDevice(std::string_view type, std::string_view devMo
     int initialWarranty)
     : typeName(type), manufacturer(devManufacturer), model(devModel),
     price(initialPrice), warrantyMonths(initialWarranty) {
+    if (initialPrice < 0) {
+        throw InvalidDataException("Начальная цена не может быть отрицательной");
+    }
+    if (initialWarranty < 0) {
+        throw InvalidDataException("Начальный срок гарантии не может быть отрицательным");
+    }
 }
 
-std::string ElectronicDevice::getModel() const { return model; }
-std::string ElectronicDevice::getManufacturer() const { return manufacturer; }
-double ElectronicDevice::getPrice() const { return price; }
-int ElectronicDevice::getWarrantyMonths() const { return warrantyMonths; }
+std::string ElectronicDevice::getModel() const { 
+    return model; 
+}
+std::string ElectronicDevice::getManufacturer() const { 
+    return manufacturer; 
+}
+double ElectronicDevice::getPrice() const { 
+    return price; 
+}
+int ElectronicDevice::getWarrantyMonths() const { 
+    return warrantyMonths; 
+}
 
-void ElectronicDevice::setModel(std::string_view newModel) { model = newModel; }
-void ElectronicDevice::setManufacturer(std::string_view newManufacturer) { manufacturer = newManufacturer; }
+void ElectronicDevice::setModel(std::string_view newModel) {
+    model = newModel; 
+}
+void ElectronicDevice::setManufacturer(std::string_view newManufacturer) { 
+    manufacturer = newManufacturer; 
+}
 
 void ElectronicDevice::setPrice(double newPrice) {
     if (newPrice < 0) {
-        std::cout << "Отказ: цена не может быть отрицательной!\n";
-        return;
+        throw InvalidDataException(std::format("Цена не может быть отрицательной ({})", newPrice));
     }
     price = newPrice;
 }
 
 void ElectronicDevice::setWarrantyMonths(int months) {
     if (months < 0) {
-        std::cout << "Отказ: гарантия не может быть отрицательной!\n";
-        return;
+        throw InvalidDataException(std::format("Срок гарантии не может быть отрицательным ({})", months));
     }
     warrantyMonths = months;
 }
@@ -44,22 +60,28 @@ void ElectronicDevice::print(std::ostream& os) const {
 
 void ElectronicDevice::read(std::istream& is) {
     std::cout << "Введите модель: ";
-    std::getline(is, model);
+    std::getline(is >> std::ws, model);
+    if (model.empty()) {
+        throw InvalidDataException("Название модели не может быть пустым");
+    }
+
     std::cout << "Введите производителя: ";
-    std::getline(is, manufacturer);
+    std::getline(is >> std::ws, manufacturer);
+    if (manufacturer.empty()) {
+        throw InvalidDataException("Название производителя не может быть пустым");
+    }
 
     std::cout << "Введите цену (BYN): ";
     if (!(is >> price) || price < 0) {
-        std::cout << "Ошибка: некорректная цена!\n";
-        is.setstate(std::ios::failbit);
-        return;
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Введена некорректная цена");
     }
 
     std::cout << "Введите гарантию (мес.): ";
     if (!(is >> warrantyMonths) || warrantyMonths < 0) {
-        std::cout << "Ошибка: некорректный срок гарантии!\n";
-        is.setstate(std::ios::failbit);
-        return;
+        is.clear();
+        is.ignore(10000, '\n');
+        throw InvalidDataException("Введен некорректный срок гарантии");
     }
-    is.ignore(10000, '\n');
 }
