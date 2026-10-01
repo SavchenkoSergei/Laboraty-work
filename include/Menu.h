@@ -9,8 +9,6 @@ class Menu {
 private:
     Warehouse& warehouse;
 
-    Collection<std::unique_ptr<ElectronicDevice>> showcaseCollection;
-
     int getMenuChoice() const;
     void printMainMenu() const;
 
