@@ -18,6 +18,7 @@ public:
 
     void printWarehouseState() const;
     void showHistory() const;
+    void clearWarehouse();
     StockItem* findStockItemByModel(std::string_view model);
     ElectronicDevice* findDeviceByModel(std::string_view model);
     void sortByPrice();

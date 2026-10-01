@@ -29,6 +29,12 @@ StockItem* Warehouse::findStockItemByModel(std::string_view model) {
         });
 }
 
+void Warehouse::clearWarehouse() {
+    inventory.clear();
+    std::cout << "Склад полностью очищен.\n";
+    actionHistory.add(std::format("{}Выполнена очистка склада.", getCurrentTimestamp()));
+}
+
 ElectronicDevice* Warehouse::findDeviceByModel(std::string_view model) {
     const auto* item = findStockItemByModel(model);
     return item ? item->device.get() : nullptr;

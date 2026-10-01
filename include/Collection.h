@@ -75,7 +75,7 @@ public:
 
     void print() const {
         if (items.empty()) {
-            std::cout << "Коллекция пуста.\n";
+            std::cout << "Пусто...\n";
             return;
         }
         for (size_t i = 0; i < items.size(); ++i) {

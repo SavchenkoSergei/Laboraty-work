@@ -58,8 +58,21 @@ void Menu::printMainMenu() const {
         << "6. Сортировать по цене\n"
         << "7. Загрузить тестовые данные\n"
         << "8. Показать журнал операций (Логи)\n"
+        << "9. Очистить весь склад\n"
         << "0. Выход\n"
         << "Выберите пункт: ";
+}
+
+void Menu::handleClearWarehouse() {
+    std::cout << "Вы уверены, что хотите полностью очистить склад? (1 - Да, 0 - Нет): ";
+    int confirm = 0;
+    if (std::cin >> confirm && confirm == 1) {
+        warehouse.clearWarehouse();
+    }
+    else {
+        std::cout << "Очистка отменена.\n";
+    }
+    std::cin.ignore(10000, '\n');
 }
 
 void Menu::run() {
@@ -92,6 +105,9 @@ void Menu::run() {
             break;
         case 8:
             warehouse.showHistory();
+            break;
+        case 9: 
+            handleClearWarehouse(); 
             break;
         case 0:
             std::cout << "Выход из программы...\n";

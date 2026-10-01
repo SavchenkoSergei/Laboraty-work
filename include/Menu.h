@@ -21,6 +21,7 @@ private:
     void handleEditDevice();
     void handleSortByPrice();
     void handleLoadTestData();
+    void handleClearWarehouse();
 
     void printAddDeviceMenu() const;
     void printEditMenu(const ElectronicDevice& device) const;
