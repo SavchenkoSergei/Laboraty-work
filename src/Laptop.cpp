@@ -46,9 +46,16 @@ void Laptop::read(std::istream& is) {
     std::getline(is >> std::ws, cpuModel);
 
     std::cout << "Введите емкость батареи (Вт*ч): ";
-    if (!(is >> batteryCapacity) || batteryCapacity <= 0) {
+    if (!(is >> batteryCapacity)) {
         is.clear();
         is.ignore(10000, '\n');
-        throw InvalidDataException("Некорректная емкость батареи");
+        throw InvalidDataException("Некорректный формат ввода: ожидается числовое значение емкости батареи");
+    }
+
+    if (batteryCapacity <= 0 || batteryCapacity > 200) {
+        throw ConstraintViolationException(std::format(
+            "Емкость батареи выходит за пределы допустимых норм (от 1 до 200 Вт*ч, введено: {})",
+            batteryCapacity
+        ));
     }
 }

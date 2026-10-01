@@ -1,5 +1,4 @@
 ﻿#include "Warehouse.h"
-#include "Exceptions.h"
 #include <iostream>
 #include <chrono>
 #include <format>
@@ -76,15 +75,19 @@ void Warehouse::reduceStockQuantity(size_t catalogNumber, int amount) {
     if (amount <= 0) {
         throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
     }
+
     StockItem* item = getStockItemByCatalogNumber(catalogNumber);
 
     if (!item->device) {
-        throw InvalidOperationException("Товар на складе не имеет инициализированного устройства.");
+        throw BrokenLinkException(std::format(
+            "позиция №{} в каталоге не содержит привязанного устройства!", catalogNumber));
     }
 
     if (item->quantity < amount) {
-        throw InvalidOperationException(std::format("Недостаточно товара на складе! Доступно: {} шт., запрошено к списанию: {} шт.",
-            item->quantity, amount));
+        throw ConstraintViolationException(std::format(
+            "Запрошено к списанию {} шт., однако на складе доступно всего {} шт. товара \"{}\"",
+            amount, item->quantity, item->device->getModel()
+        ));
     }
 
     auto modelName = std::string(item->device->getModel());
@@ -99,10 +102,10 @@ void Warehouse::reduceStockQuantity(size_t catalogNumber, int amount) {
 
 Warehouse& Warehouse::operator+=(StockItem newItem) {
     if (!newItem.device) {
-        throw InvalidOperationException("Попытка добавить на склад пустой объект (nullptr)");
+        throw BrokenLinkException("попытка добавить запись на склад без инициализированного устройства (nullptr)");
     }
     if (newItem.quantity <= 0) {
-        throw InvalidDataException(std::format("Количество товара должно быть больше нуля ({})", newItem.quantity));
+        throw ConstraintViolationException(std::format("количество добавляемого товара должно быть больше нуля (передано: {})",newItem.quantity));
     }
 
     if (inventory.find([&newItem](const StockItem& item) { return *(item.device) == *(newItem.device); }) != nullptr) {

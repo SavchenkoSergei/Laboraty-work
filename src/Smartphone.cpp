@@ -24,6 +24,11 @@ void Smartphone::read(std::istream& is) {
         throw InvalidDataException("Некорректный объем ОЗУ");
     }
 
+    if (ramSize <= 0 || ramSize > 128) {
+        throw ConstraintViolationException(std::format(
+            "Объем ОЗУ выходит за границы допустимых технологических ограничений (от 1 до 128 ГБ, введено: {})", ramSize));
+    }
+
     std::cout << "Введите ОС: ";
     std::getline(is >> std::ws, osName);
     if (osName.empty()) {

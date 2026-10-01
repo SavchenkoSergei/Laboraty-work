@@ -24,6 +24,11 @@ void Tablet::read(std::istream& is) {
         throw InvalidDataException("Некорректная диагональ экрана");
     }
 
+    if (screenSize < 4.0 || screenSize > 20.0) {
+        throw ConstraintViolationException(std::format(
+            "Диагональ экрана выходит за пределы ограничений категории планшетов (от 4.0 до 20.0 дюймов, введено: {})", screenSize));
+    }
+
     std::cout << "Поддержка стилуса (1 - Да, 0 - Нет): ";
     int stylusInput = 0;
     if (!(is >> stylusInput) || (stylusInput != 0 && stylusInput != 1)) {

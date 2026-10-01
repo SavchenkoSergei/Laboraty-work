@@ -1,12 +1,5 @@
 ﻿#include "Menu.h"
-#include "Warehouse.h"
-#include "ElectronicDevice.h"
-#include "Smartphone.h"
-#include "Tablet.h"
-#include "Laptop.h"
-#include "HomeAppliance.h"
 #include <iostream>
-#include <memory>
 #include <string>
 #include <format>
 #include <cctype>
@@ -187,11 +180,17 @@ void Menu::handleException(std::exception_ptr eptr) const {
     catch (const DuplicateItemException& ex) {
         std::cout << std::format("\n[ОШИБКА КОНФЛИКТА] {}\n", ex.what());
     }
-    catch (const OutOfBoundsException& ex) {
-        std::cout << std::format("\n[ОШИБКА ИНДЕКСАЦИИ] {}\n", ex.what());
+    catch (const ConstraintViolationException& ex) {
+        std::cout << std::format("\n[ОШИБКА ОГРАНИЧЕНИЯ] {}\n", ex.what());
     }
     catch (const InvalidOperationException& ex) {
         std::cout << std::format("\n[ОШИБКА ОПЕРАЦИИ] {}\n", ex.what());
+    }
+    catch (const OutOfBoundsException& ex) {
+        std::cout << std::format("\n[ОШИБКА ИНДЕКСАЦИИ] {}\n", ex.what());
+    }
+    catch (const BrokenLinkException& ex) {
+        std::cout << std::format("\n[ОШИБКА СВЯЗИ] {}\n", ex.what());
     }
     catch (const WarehouseException& ex) {
         std::cout << std::format("\n[ОБЩАЯ ОШИБКА СКЛАДА] {}\n", ex.what());

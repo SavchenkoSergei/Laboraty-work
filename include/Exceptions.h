@@ -30,6 +30,13 @@ public:
     }
 };
 
+class ConstraintViolationException : public WarehouseException {
+public:
+    explicit ConstraintViolationException(const std::string& message)
+        : WarehouseException(std::format("Нарушение ограничений: {}", message)) {
+    }
+};
+
 class OutOfBoundsException : public WarehouseException {
 public:
     explicit OutOfBoundsException(const std::string& message)
@@ -41,5 +48,12 @@ class InvalidOperationException : public WarehouseException {
 public:
     explicit InvalidOperationException(const std::string& message)
         : WarehouseException(std::format("Недопустимая операция: {}", message)) {
+    }
+};
+
+class BrokenLinkException : public WarehouseException {
+public:
+    explicit BrokenLinkException(const std::string& message)
+        : WarehouseException(std::format("Нарушение связи между объектами: {}", message)) {
     }
 };

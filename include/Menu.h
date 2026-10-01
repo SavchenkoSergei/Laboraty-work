@@ -1,9 +1,13 @@
 ﻿#pragma once
 
+#include "Exceptions.h"
 #include "Warehouse.h"
 #include "Collection.h"
 #include "ElectronicDevice.h"
-#include "Exceptions.h"
+#include "Smartphone.h"
+#include "Tablet.h"
+#include "Laptop.h"
+#include "HomeAppliance.h"
 #include <memory>
 
 class Menu {
