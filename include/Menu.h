@@ -27,6 +27,7 @@ private:
     void handleLoadTestData();
     void handleClearWarehouse();
     void handleException(std::exception_ptr eptr) const;
+    void handleIncreaseStock() const;
 
     StockItem* selectStockItem() const;
     void printAddDeviceMenu() const;

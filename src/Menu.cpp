@@ -35,22 +35,6 @@ void Menu::handlePrintDeviceDetails() const {
     }
 }
 
-void Menu::printMainMenu() const {
-    std::cout << "\n=== Меню управления складом ===\n"
-        << "1. Добавить устройство\n"
-        << "2. Удалить устройство\n"
-        << "3. Списать/Уменьшить количество товара\n"
-        << "4. Показать весь каталог\n"
-        << "5. Показать характеристики определенной модели\n"
-        << "6. Редактировать устройство\n"
-        << "7. Сортировать по цене\n"
-        << "8. Загрузить тестовые данные\n"
-        << "9. Показать журнал операций (Логи)\n"
-        << "10. Очистить весь склад\n"
-        << "0. Выход\n"
-        << "Выберите пункт: ";
-}
-
 StockItem* Menu::selectStockItem() const {
     std::cout << "Введите название модели или номер позиции из каталога: ";
     std::string input;
@@ -94,10 +78,6 @@ void Menu::handleReduceStock() {
     std::cout << "=== Списание товара со склада ===\n";
     StockItem* item = selectStockItem();
 
-    if (!item || !item->device) {
-        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
-    }
-
     std::cout << "Введите количество для списания: ";
     int amount = 0;
     if (!(std::cin >> amount)) {
@@ -106,25 +86,41 @@ void Menu::handleReduceStock() {
         throw InvalidDataException("Введено некорректное количество");
     }
 
-    if (amount <= 0) {
-        throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
+    warehouse.reduceStockQuantity(item, amount);
+}
+
+void Menu::handleIncreaseStock() const {
+    std::cout << "=== Пополнение остатка товара ===\n";
+    StockItem* item = selectStockItem();
+
+    std::cout << "Введите количество для прихода: ";
+    int amount = 0;
+    if (!(std::cin >> amount)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Введено некорректное количество");
     }
 
-    if (item->quantity < amount) {
-        throw ConstraintViolationException(std::format(
-            "Запрошено к списанию {} шт., однако на складе доступно всего {} шт. товара \"{}\"",
-            amount, item->quantity, item->device->getModel()
-        ));
-    }
+    warehouse.increaseStockQuantity(item, amount);
 
-    auto modelName = std::string(item->device->getModel());
-    item->quantity -= amount;
+    std::cout << "Остаток товара успешно пополнен!\n";
+}
 
-    if (item->quantity == 0) {
-        warehouse -= modelName;
-    }
-
-    std::cout << "Товар успешно списан!\n";
+void Menu::printMainMenu() const {
+    std::cout << "\n=== Меню управления складом ===\n"
+        << "1. Добавить устройство\n"
+        << "2. Удалить устройство\n"
+        << "3. Пополнить количество товара\n"
+        << "4. Списать/Уменьшить количество товара\n"
+        << "5. Показать весь каталог\n"
+        << "6. Показать характеристики определенной модели\n"
+        << "7. Редактировать устройство\n"
+        << "8. Сортировать по цене\n"
+        << "9. Загрузить тестовые данные\n"
+        << "10. Показать журнал операций (Логи)\n"
+        << "11. Очистить весь склад\n"
+        << "0. Выход\n"
+        << "Выберите пункт: ";
 }
 
 void Menu::run() {
@@ -143,27 +139,30 @@ void Menu::run() {
                 handleDeleteDevice();
                 break;
             case 3:
-                handleReduceStock();
+                handleIncreaseStock();
                 break;
             case 4:
-                handlePrintWarehouse();
+                handleReduceStock();
                 break;
             case 5:
-                handlePrintDeviceDetails();
+                handlePrintWarehouse();
                 break;
             case 6:
-                handleEditDevice();
+                handlePrintDeviceDetails();
                 break;
             case 7:
-                handleSortByPrice();
+                handleEditDevice();
                 break;
             case 8:
-                handleLoadTestData();
+                handleSortByPrice();
                 break;
             case 9:
-                warehouse.showHistory();
+                handleLoadTestData();
                 break;
             case 10:
+                warehouse.showHistory();
+                break;
+            case 11:
                 handleClearWarehouse();
                 break;
             case 0:
@@ -266,10 +265,6 @@ void Menu::handleAddDevice() {
 void Menu::handleDeleteDevice() {
     std::cout << "=== Удаление устройства ===\n";
     const StockItem* item = selectStockItem();
-
-    if (!item || !item->device) {
-        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
-    }
 
     warehouse -= item->device->getModel();
     std::cout << "Запись успешно удалена со склада!\n";

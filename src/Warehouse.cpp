@@ -71,16 +71,23 @@ void Warehouse::sortByPrice() {
     actionHistory.add(std::format("{}Выполнена сортировка товаров по цене.", getCurrentTimestamp()));
 }
 
-void Warehouse::reduceStockQuantity(size_t catalogNumber, int amount) {
+void Warehouse::increaseStockQuantity(StockItem* item, int amount) {
     if (amount <= 0) {
-        throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
+        throw InvalidDataException(std::format("Количество прихода должно быть больше нуля (введено: {})", amount));
     }
 
-    StockItem* item = getStockItemByCatalogNumber(catalogNumber);
+    item->quantity += amount;
+    actionHistory.add(std::format("{}Пополнен остаток товара \"{}\" на {} шт. (Текущий остаток: {} шт.)",
+        getCurrentTimestamp(),item->device->getModel(),amount,item->quantity));
+}
 
-    if (!item->device) {
-        throw BrokenLinkException(std::format(
-            "позиция №{} в каталоге не содержит привязанного устройства!", catalogNumber));
+void Warehouse::reduceStockQuantity(StockItem* item, int amount) {
+    if (!item || !item->device) {
+        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
+    }
+
+    if (amount <= 0) {
+        throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
     }
 
     if (item->quantity < amount) {
