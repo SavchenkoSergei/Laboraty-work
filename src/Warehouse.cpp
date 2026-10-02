@@ -82,10 +82,6 @@ void Warehouse::increaseStockQuantity(StockItem* item, int amount) {
 }
 
 void Warehouse::reduceStockQuantity(StockItem* item, int amount) {
-    if (!item || !item->device) {
-        throw BrokenLinkException("Выбранная позиция не содержит устройства!");
-    }
-
     if (amount <= 0) {
         throw InvalidDataException(std::format("Количество для списания должно быть больше нуля (введено: {})", amount));
     }
