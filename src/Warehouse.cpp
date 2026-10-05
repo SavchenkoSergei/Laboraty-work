@@ -65,7 +65,7 @@ void Warehouse::sortByPrice() {
 
     inventory.sort([](const StockItem& a, const StockItem& b) {
         if (!a.device || !b.device) return false;
-        return a.device->getPrice() < b.device->getPrice();
+        return *a.device < *b.device;
         });
 
     actionHistory.add(std::format("{}Выполнена сортировка товаров по цене.", getCurrentTimestamp()));
