@@ -85,3 +85,23 @@ void ElectronicDevice::read(std::istream& is) {
         throw InvalidDataException("Введен некорректный срок гарантии");
     }
 }
+
+void ElectronicDevice::saveToFile(std::ostream& os) const {
+    os << typeName << "\n"
+        << manufacturer << "\n"
+        << model << "\n"
+        << price << "\n"
+        << warrantyMonths << "\n";
+}
+
+void ElectronicDevice::loadFromFile(std::istream& is) {
+    if (!std::getline(is >> std::ws, typeName) ||
+        !std::getline(is >> std::ws, manufacturer) ||
+        !std::getline(is >> std::ws, model) ||
+        !(is >> price) || !(is >> warrantyMonths)) {
+        throw InvalidDataException("Ошибка чтения базовых характеристик устройства из файла");
+    }
+
+    if (price < 0) throw InvalidDataException("Цена в файле не может быть отрицательной");
+    if (warrantyMonths < 0) throw InvalidDataException("Гарантия в файле не может быть отрицательной");
+}

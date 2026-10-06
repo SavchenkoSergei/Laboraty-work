@@ -59,3 +59,18 @@ void Laptop::read(std::istream& is) {
         ));
     }
 }
+
+void Laptop::saveToFile(std::ostream& os) const {
+    ElectronicDevice::saveToFile(os);
+    os << cpuModel << "\n" << batteryCapacity << "\n";
+}
+
+void Laptop::loadFromFile(std::istream& is) {
+    ElectronicDevice::loadFromFile(is);
+    if (!std::getline(is >> std::ws, cpuModel) || !(is >> batteryCapacity)) {
+        throw InvalidDataException("Ошибка чтения параметров ноутбука из файла");
+    }
+    if (batteryCapacity <= 0 || batteryCapacity > 200) {
+        throw ConstraintViolationException(std::format("Некорректная ёмкость батареи в файле: {}", batteryCapacity));
+    }
+}

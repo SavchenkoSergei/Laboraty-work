@@ -28,11 +28,9 @@ void Menu::handleLoadTestData() {
 
 void Menu::handlePrintDeviceDetails() const {
     StockItem* item = selectStockItem();
-    if (item && item->device) {
         std::cout << "\n=== Детальные характеристики ===\n";
         std::cout << *(item->device) << "\n";
         std::cout << std::format("Количество на складе: {} шт.\n", item->quantity);
-    }
 }
 
 StockItem* Menu::selectStockItem() const {
@@ -63,17 +61,25 @@ StockItem* Menu::selectStockItem() const {
 void Menu::handleClearWarehouse() {
     std::cout << "Вы уверены, что хотите полностью очистить склад? (1 - Да, 0 - Нет): ";
 
-    if (int confirm = 0; (std::cin >> confirm) && confirm == 1) {
+    int confirm = -1;
+    if (!(std::cin >> confirm)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный ввод. Ожидается 1 (Да) или 0 (Нет).");
+    }
+    std::cin.ignore(10000, '\n');
+
+    if (confirm == 1) {
         warehouse.clearWarehouse();
         std::cout << "Склад успешно очищен.\n";
     }
-    else {
-        std::cout << "Очистка отменена.\n";
+    else if (confirm == 0) {
+        std::cout << "Очистка склада отменена.\n";
     }
-
-    std::cin.ignore(10000, '\n');
+    else {
+        throw InvalidDataException(std::format("Недопустимый вариант подтвеждения (введено: {}). Ожидается 1 или 0.", confirm));
+    }
 }
-
 void Menu::handleReduceStock() {
     std::cout << "=== Списание товара со склада ===\n";
     StockItem* item = selectStockItem();
@@ -119,6 +125,9 @@ void Menu::printMainMenu() const {
         << "9. Загрузить тестовые данные\n"
         << "10. Показать журнал операций (Логи)\n"
         << "11. Очистить весь склад\n"
+        << "12. Сохранить состояние в файл\n"
+        << "13. Загрузить состояние из файла\n"
+        << "14. Сформировать текстовый отчет\n"
         << "0. Выход\n"
         << "Выберите пункт: ";
 }
@@ -165,6 +174,15 @@ void Menu::run() {
             case 11:
                 handleClearWarehouse();
                 break;
+            case 12:
+                handleSaveData();
+                break;
+            case 13:
+                handleLoadData();
+                break;
+            case 14:
+                handleGenerateReport();
+                break;
             case 0:
                 std::cout << "Выход из программы...\n";
                 break;
@@ -177,6 +195,21 @@ void Menu::run() {
             handleException(std::current_exception());
         }
     }
+}
+
+void Menu::handleSaveData() const {
+    warehouse.saveStateToFile("warehouse_data.txt");
+    std::cout << "Состояние склада успешно сохранено в файл warehouse_data.txt!\n";
+}
+
+void Menu::handleLoadData() {
+    warehouse.loadStateFromFile("warehouse_data.txt");
+    std::cout << "Состояние склада успешно восстановлено из файла warehouse_data.txt!\n";
+}
+
+void Menu::handleGenerateReport() const {
+    warehouse.generateReport("report.txt");
+    std::cout << "Текстовый отчет успешно сформирован в файл report.txt!\n";
 }
 
 void Menu::handleException(std::exception_ptr eptr) const {
@@ -300,8 +333,13 @@ void Menu::editPrice(ElectronicDevice& device) const {
         std::cin.ignore(10000, '\n');
         throw InvalidDataException("Введена некорректная цена");
     }
+
+    double oldPrice = device.getPrice();
     device.setPrice(newPrice);
     std::cin.ignore(10000, '\n');
+
+    warehouse.logAction(std::format("Изменена цена товара \"{}\": с {:.2f} BYN на {:.2f} BYN",
+        device.getModel(), oldPrice, newPrice));
 }
 
 void Menu::editWarranty(ElectronicDevice& device) const {
@@ -312,8 +350,13 @@ void Menu::editWarranty(ElectronicDevice& device) const {
         std::cin.ignore(10000, '\n');
         throw InvalidDataException("Введен некорректный срок гарантии");
     }
+
+    int oldWarranty = device.getWarrantyMonths();
     device.setWarrantyMonths(newWarranty);
     std::cin.ignore(10000, '\n');
+
+    warehouse.logAction(std::format("Изменен срок гарантии товара \"{}\": с {} мес. на {} мес.",
+        device.getModel(), oldWarranty, newWarranty));
 }
 
 void Menu::editManufacturer(ElectronicDevice& device) const {
@@ -323,7 +366,12 @@ void Menu::editManufacturer(ElectronicDevice& device) const {
     if (newManufacturer.empty()) {
         throw InvalidDataException("Название производителя не может быть пустым");
     }
+
+    std::string oldManufacturer = device.getManufacturer();
     device.setManufacturer(newManufacturer);
+
+    warehouse.logAction(std::format(R"(Изменен производитель товара "{}": с "{}" на "{}")",
+        device.getModel(), oldManufacturer, newManufacturer));
 }
 
 void Menu::editModel(ElectronicDevice& device) const {
@@ -333,12 +381,25 @@ void Menu::editModel(ElectronicDevice& device) const {
     if (newModel.empty()) {
         throw InvalidDataException("Название модели не может быть пустым");
     }
+
+    std::string oldModel = device.getModel();
     device.setModel(newModel);
+
+    warehouse.logAction(std::format(R"(Изменено название модели: с "{}" на "{}")",
+        oldModel, newModel));
 }
 
 void Menu::editExtraSpec(ElectronicDevice& device) const {
     std::cout << std::format("Текущие доп. характеристики: {}\n", device.getExtraSpec());
-    device.setExtraSpec("");
+    std::cout << "Введите новые спецификации: ";
+    std::string newSpec;
+    std::getline(std::cin >> std::ws, newSpec);
+
+    device.setExtraSpec(newSpec);
+
+    warehouse.logAction(std::format(
+        "Обновлены доп. характеристики товара \"{}\": {}",
+        device.getModel(), device.getExtraSpec() ));
     std::cout << "Доп. характеристики успешно обновлены!\n";
 }
 

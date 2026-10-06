@@ -16,6 +16,9 @@ public:
     void print(std::ostream& os) const override;
     void read(std::istream& is) override;
 
+    void saveToFile(std::ostream& os) const override;
+    void loadFromFile(std::istream& is) override;
+
     std::string getExtraSpec() const override;
     void setExtraSpec(std::string_view spec) override;
 };

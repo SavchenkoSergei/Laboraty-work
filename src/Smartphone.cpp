@@ -60,3 +60,18 @@ void Smartphone::setExtraSpec(std::string_view spec) {
 std::string Smartphone::getExtraSpec() const {
     return std::format("ОЗУ: {} ГБ, ОС: {}", ramSize, osName);
 }
+
+void Smartphone::saveToFile(std::ostream& os) const {
+    ElectronicDevice::saveToFile(os);
+    os << ramSize << "\n" << osName << "\n";
+}
+
+void Smartphone::loadFromFile(std::istream& is) {
+    ElectronicDevice::loadFromFile(is);
+    if (!(is >> ramSize) || !std::getline(is >> std::ws, osName)) {
+        throw InvalidDataException("Ошибка чтения параметров смартфона из файла");
+    }
+    if (ramSize <= 0 || ramSize > 128) {
+        throw ConstraintViolationException(std::format("Некорректный объем ОЗУ в файле: {}", ramSize));
+    }
+}

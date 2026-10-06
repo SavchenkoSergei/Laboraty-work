@@ -42,6 +42,9 @@ public:
     virtual void print(std::ostream& os) const;
     virtual void read(std::istream& is);
 
+    virtual void saveToFile(std::ostream& os) const;
+    virtual void loadFromFile(std::istream& is);
+
     bool operator==(const ElectronicDevice& other) const;
     auto operator<=>(const ElectronicDevice& other) const {
         return price <=> other.price;

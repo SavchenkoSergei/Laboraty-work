@@ -64,3 +64,18 @@ void Tablet::setExtraSpec(std::string_view spec) {
 std::string Tablet::getExtraSpec() const {
     return std::format("Экран: {}\", Стилус: {}", screenSize, stylusSupport ? "Да" : "Нет");
 }
+
+void Tablet::saveToFile(std::ostream& os) const {
+    ElectronicDevice::saveToFile(os);
+    os << screenSize << "\n" << stylusSupport << "\n";
+}
+
+void Tablet::loadFromFile(std::istream& is) {
+    ElectronicDevice::loadFromFile(is);
+    if (!(is >> screenSize) || !(is >> stylusSupport)) {
+        throw InvalidDataException("Ошибка чтения параметров планшета из файла");
+    }
+    if (screenSize < 4.0 || screenSize > 20.0) {
+        throw ConstraintViolationException(std::format("Некорректная диагональ экрана в файле: {}", screenSize));
+    }
+}

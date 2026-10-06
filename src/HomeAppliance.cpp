@@ -55,3 +55,18 @@ void HomeAppliance::setExtraSpec(std::string_view spec) {
     powerWatts = newPower;
     std::cin.ignore(10000, '\n');
 }
+
+void HomeAppliance::saveToFile(std::ostream& os) const {
+    ElectronicDevice::saveToFile(os);
+    os << energyClass << "\n" << powerWatts << "\n";
+}
+
+void HomeAppliance::loadFromFile(std::istream& is) {
+    ElectronicDevice::loadFromFile(is);
+    if (!std::getline(is >> std::ws, energyClass) || !(is >> powerWatts)) {
+        throw InvalidDataException("Ошибка чтения параметров бытовой техники из файла");
+    }
+    if (powerWatts <= 0) {
+        throw InvalidDataException("Некорректная мощность техники в файле");
+    }
+}

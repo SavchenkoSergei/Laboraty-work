@@ -40,6 +40,9 @@ private:
     void editModel(ElectronicDevice& device) const;
     void editExtraSpec(ElectronicDevice& device) const;
 
+    void handleSaveData() const;
+    void handleLoadData();
+    void handleGenerateReport() const;
 public:
     explicit Menu(Warehouse& wh);
 
