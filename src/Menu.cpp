@@ -80,7 +80,7 @@ void Menu::handleClearWarehouse() {
         throw InvalidDataException(std::format("Недопустимый вариант подтвеждения (введено: {}). Ожидается 1 или 0.", confirm));
     }
 }
-void Menu::handleReduceStock() {
+void Menu::handleReduceStock() const {
     std::cout << "=== Списание товара со склада ===\n";
     StockItem* item = selectStockItem();
 

@@ -19,7 +19,7 @@ private:
 
     void handleAddDevice();
     void handleDeleteDevice();
-    void handleReduceStock();
+    void handleReduceStock() const;
     void handlePrintWarehouse() const;
     void handlePrintDeviceDetails() const;
     void handleEditDevice() const;
