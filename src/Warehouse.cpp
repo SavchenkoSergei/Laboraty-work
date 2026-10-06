@@ -155,6 +155,12 @@ void Warehouse::showHistory() const {
     actionHistory.print();
 }
 
+void Warehouse::logAction(std::string_view message) const {
+    std::string entry = std::format("{}{}", getCurrentTimestamp(), message);
+    actionHistory.add(entry);
+    appendToExternalLog(entry);
+}
+
 void Warehouse::appendToExternalLog(const std::string& message) const {
     std::ofstream logFile("journal.log", std::ios::app);
     if (!logFile.is_open()) {
@@ -196,13 +202,7 @@ void Warehouse::saveStateToFile(const std::string& filename) const {
         throw InvalidOperationException("Ошибка во время записи данных в файл");
     }
 
-    appendToExternalLog(std::format("{}Состояние склада успешно сохранено в файл \"{}\"", getCurrentTimestamp(), filename));
-}
-
-void Warehouse::logAction(std::string_view message) const {
-    std::string entry = std::format("{}{}", getCurrentTimestamp(), message);
-    actionHistory.add(entry);
-    appendToExternalLog(entry);
+    logAction(std::format(R"(Состояние склада сохранено в файл "{}")", filename));
 }
 
 void Warehouse::loadStateFromFile(const std::string& filename) {
@@ -271,7 +271,6 @@ void Warehouse::loadStateFromFile(const std::string& filename) {
     actionHistory = std::move(tempHistory);
 
     logAction(std::format(R"(Состояние склада успешно загружено из файла "{}")", filename));
-    appendToExternalLog(std::format("{}Состояние склада успешно загружено из файла \"{}\"", getCurrentTimestamp(), filename));
 }
 
 void Warehouse::generateReport(const std::string& filename) const {
@@ -320,5 +319,5 @@ void Warehouse::generateReport(const std::string& filename) const {
 
     report << "====================================================\n";
 
-    appendToExternalLog(std::format("{}Сформирован текстовый отчет \"{}\"", getCurrentTimestamp(), filename));
+    logAction(std::format(R"(Сформирован текстовый отчет "{}")", filename));
 }
