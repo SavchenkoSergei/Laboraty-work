@@ -170,39 +170,48 @@ void Warehouse::appendToExternalLog(const std::string& message) const {
 }
 
 void Warehouse::saveStateToFile(const std::string& filename) const {
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        throw InvalidOperationException(std::format("Не удалось открыть файл \"{}\" для записи состояния", filename));
+    std::string saveMsg = std::format(R"(Состояние склада успешно сохранено в файл "{}")", filename);
+    logAction(saveMsg);
+
+    try {
+        std::ofstream file(filename);
+        if (!file.is_open()) {
+            throw InvalidOperationException(std::format(R"(Не удалось открыть файл "{}" для записи состояния)", filename));
+        }
+
+        file << warehouseName << "\n";
+        file << inventory.size() << "\n";
+
+        for (size_t i = 0; i < inventory.size(); ++i) {
+            const auto& item = inventory.getAt(i);
+            if (!item.device) continue;
+
+            std::string typeTag;
+            if (dynamic_cast<Smartphone*>(item.device.get())) typeTag = "SMARTPHONE";
+            else if (dynamic_cast<Tablet*>(item.device.get())) typeTag = "TABLET";
+            else if (dynamic_cast<Laptop*>(item.device.get())) typeTag = "LAPTOP";
+            else if (dynamic_cast<HomeAppliance*>(item.device.get())) typeTag = "APPLIANCE";
+
+            file << typeTag << "\n";
+            file << item.quantity << "\n";
+            item.device->saveToFile(file);
+        }
+
+        file << actionHistory.size() << "\n";
+        for (size_t i = 0; i < actionHistory.size(); ++i) {
+            file << actionHistory.getAt(i) << "\n";
+        }
+
+        if (file.fail()) {
+            throw InvalidOperationException("Ошибка во время записи данных в файл");
+        }
     }
-
-    file << warehouseName << "\n";
-    file << inventory.size() << "\n";
-
-    for (size_t i = 0; i < inventory.size(); ++i) {
-        const auto& item = inventory.getAt(i);
-        if (!item.device) continue;
-
-        std::string typeTag;
-        if (dynamic_cast<Smartphone*>(item.device.get())) typeTag = "SMARTPHONE";
-        else if (dynamic_cast<Tablet*>(item.device.get())) typeTag = "TABLET";
-        else if (dynamic_cast<Laptop*>(item.device.get())) typeTag = "LAPTOP";
-        else if (dynamic_cast<HomeAppliance*>(item.device.get())) typeTag = "APPLIANCE";
-
-        file << typeTag << "\n";
-        file << item.quantity << "\n";
-        item.device->saveToFile(file);
+    catch (...) {
+        actionHistory.removeIf([this](const std::string_view& entry) {
+            return entry == actionHistory.getAt(actionHistory.size() - 1);
+            });
+        throw;
     }
-
-    file << actionHistory.size() << "\n";
-    for (size_t i = 0; i < actionHistory.size(); ++i) {
-        file << actionHistory.getAt(i) << "\n";
-    }
-
-    if (file.fail()) {
-        throw InvalidOperationException("Ошибка во время записи данных в файл");
-    }
-
-    logAction(std::format(R"(Состояние склада сохранено в файл "{}")", filename));
 }
 
 void Warehouse::loadStateFromFile(const std::string& filename) {
