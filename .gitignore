@@ -372,3 +372,5 @@ FodyWeavers.xsd
 /Lab.vcxproj.filters
 /CMakeSettings.json
 /Lab.sln
+/report.txt
+/warehouse_data.txt
