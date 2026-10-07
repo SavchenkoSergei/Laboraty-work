@@ -148,8 +148,27 @@ const StockItem& Warehouse::getCheapestItem() const {
 }
 
 int Warehouse::countItemsMoreThan(int threshold) const {
-    return static_cast<int>(std::count_if(inventory.begin(), inventory.end(), [threshold](const StockItem& item) {
-        return item.quantity > threshold;}));
+    if (inventory.empty()) {
+        std::cout << "Склад пуст.\n";
+        return 0;
+    }
+
+    auto count = static_cast<int>(std::count_if(inventory.begin(), inventory.end(), [threshold](const StockItem& item) {
+        return item.quantity > threshold;
+        }));
+
+    if (count == 0) {
+        std::cout << std::format("Товары с количеством более {} шт. не найдены.\n", threshold);
+        return 0;
+    }
+
+    std::for_each(inventory.begin(), inventory.end(), [threshold](const StockItem& item) {
+        if (item.quantity > threshold) {
+            std::cout << item << "\n"; 
+        }
+        });
+
+    return count;
 }
 
 double Warehouse::calculateTotalCost() const {
