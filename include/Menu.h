@@ -2,7 +2,7 @@
 
 #include "Exceptions.h"
 #include "Warehouse.h"
-#include "Collection.h"
+#include "CategoryStats.h"
 #include "ElectronicDevice.h"
 #include "Smartphone.h"
 #include "Tablet.h"

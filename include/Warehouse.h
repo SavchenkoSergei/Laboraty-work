@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 #include "StockItem.h"
-#include "Collection.h"
+#include "CategoryStats.h"
 #include "Exceptions.h"
 #include "Smartphone.h"
 #include "Tablet.h"
