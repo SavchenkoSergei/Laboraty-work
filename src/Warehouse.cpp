@@ -149,14 +149,12 @@ const StockItem& Warehouse::getCheapestItem() const {
 
 int Warehouse::countItemsMoreThan(int threshold) const {
     return static_cast<int>(std::count_if(inventory.begin(), inventory.end(), [threshold](const StockItem& item) {
-        return item.quantity > threshold;
-        }));
+        return item.quantity > threshold;}));
 }
 
 double Warehouse::calculateTotalCost() const {
     return std::accumulate(inventory.begin(), inventory.end(), 0.0, [](double sum, const StockItem& item) {
-        return sum + (item.device ? item.device->getPrice() * item.quantity : 0.0);
-        });
+        return sum + (item.device ? item.device->getPrice() * item.quantity : 0.0);});
 }
 
 CategoryMap Warehouse::getStatsByCategory() const {
@@ -227,13 +225,10 @@ Warehouse& Warehouse::operator-=(std::string_view model) {
     if (const StockItem* foundItem = findStockItemByModel(model); foundItem->quantity > 0) {
         throw BrokenLinkException(std::format(
             "Нельзя удалить позицию \"{}\", к ней привязаны товары на складе (в наличии: {} шт.). Сначала спишите остатки!",
-            std::string(model), foundItem->quantity
-        ));
+            model, foundItem->quantity));
     }
 
-    std::erase_if(inventory, [model](const StockItem& i) {
-        return i.device && i.device->getModel() == model;
-        });
+    std::erase_if(inventory, [model](const StockItem& i) {return i.device && i.device->getModel() == model;});
 
     logAction(std::format("Удален товар по модели: {}", std::string(model)));
     return *this;
@@ -251,8 +246,7 @@ void Warehouse::printWarehouseState() const {
     }
 
     auto activeCount = static_cast<int>(std::count_if(inventory.begin(), inventory.end(), [](const StockItem& item) {
-        return item.quantity > 0 && item.device != nullptr;
-        }));
+        return item.quantity > 0 && item.device != nullptr;}));
 
     std::cout << "Всего позиций в наличии: " << activeCount << "\n";
 }
