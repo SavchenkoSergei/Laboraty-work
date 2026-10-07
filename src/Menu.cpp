@@ -17,22 +17,6 @@ int Menu::getMenuChoice() const {
     return choice;
 }
 
-void Menu::handleLoadTestData() {
-    warehouse += StockItem{ std::make_unique<Smartphone>("iPhone 15 Pro", "Apple", 4200.0, 12, 8, "iOS 17"), 15 };
-    warehouse += StockItem{ std::make_unique<Tablet>("Galaxy Tab S9", "Samsung", 2600.0, 24, 11.0, true), 8 };
-    warehouse += StockItem{ std::make_unique<Laptop>("ThinkPad X1 Carbon", "Lenovo", 6300.0, 36, "Intel Core i7-1370P", 57), 5 };
-    warehouse += StockItem{ std::make_unique<HomeAppliance>("Series 6 Washing Machine", "Bosch", 2200.0, 24, "A+++", 2300), 3 };
-
-    std::cout << "Тестовые данные успешно загружены на склад!\n";
-}
-
-void Menu::handlePrintDeviceDetails() const {
-    StockItem* item = selectStockItem();
-        std::cout << "\n=== Детальные характеристики ===\n";
-        std::cout << *(item->device) << "\n";
-        std::cout << std::format("Количество на складе: {} шт.\n", item->quantity);
-}
-
 StockItem* Menu::selectStockItem() const {
     std::cout << "Введите название модели или номер позиции из каталога: ";
     std::string input;
@@ -58,60 +42,6 @@ StockItem* Menu::selectStockItem() const {
     return warehouse.findStockItemByModel(input);
 }
 
-void Menu::handleClearWarehouse() {
-    std::cout << "Вы уверены, что хотите полностью очистить склад? (1 - Да, 0 - Нет): ";
-
-    int confirm = -1;
-    if (!(std::cin >> confirm)) {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        throw InvalidDataException("Некорректный ввод. Ожидается 1 (Да) или 0 (Нет).");
-    }
-    std::cin.ignore(10000, '\n');
-
-    if (confirm == 1) {
-        warehouse.clearWarehouse();
-        std::cout << "Склад успешно очищен.\n";
-    }
-    else if (confirm == 0) {
-        std::cout << "Очистка склада отменена.\n";
-    }
-    else {
-        throw InvalidDataException(std::format("Недопустимый вариант подтвеждения (введено: {}). Ожидается 1 или 0.", confirm));
-    }
-}
-void Menu::handleReduceStock() const {
-    std::cout << "=== Списание товара со склада ===\n";
-    StockItem* item = selectStockItem();
-
-    std::cout << "Введите количество для списания: ";
-    int amount = 0;
-    if (!(std::cin >> amount)) {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        throw InvalidDataException("Введено некорректное количество");
-    }
-
-    warehouse.reduceStockQuantity(item, amount);
-}
-
-void Menu::handleIncreaseStock() const {
-    std::cout << "=== Пополнение остатка товара ===\n";
-    StockItem* item = selectStockItem();
-
-    std::cout << "Введите количество для прихода: ";
-    int amount = 0;
-    if (!(std::cin >> amount)) {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        throw InvalidDataException("Введено некорректное количество");
-    }
-
-    warehouse.increaseStockQuantity(item, amount);
-
-    std::cout << "Остаток товара успешно пополнен!\n";
-}
-
 void Menu::printMainMenu() const {
     std::cout << "\n=== Меню управления складом ===\n"
         << "1. Добавить устройство\n"
@@ -122,12 +52,16 @@ void Menu::printMainMenu() const {
         << "6. Показать характеристики определенной модели\n"
         << "7. Редактировать устройство\n"
         << "8. Сортировать по цене\n"
-        << "9. Загрузить тестовые данные\n"
-        << "10. Показать журнал операций (Логи)\n"
-        << "11. Очистить весь склад\n"
-        << "12. Сохранить состояние в файл\n"
-        << "13. Загрузить состояние из файла\n"
-        << "14. Сформировать текстовый отчет\n"
+        << "9. Сортировать по названию\n"            
+        << "10. Найти товары в диапазоне цен\n"     
+        << "11. Показать самый дорогой и дешевый товар\n"
+        << "12. Подсчитать товары больше заданного кол-ва\n" 
+        << "13. Загрузить тестовые данные\n"
+        << "14. Показать журнал операций (Логи)\n"
+        << "15. Очистить весь склад\n"
+        << "16. Сохранить состояние в файл\n"
+        << "17. Загрузить состояние из файла\n"
+        << "18. Сформировать текстовый отчет\n"
         << "0. Выход\n"
         << "Выберите пункт: ";
 }
@@ -141,78 +75,75 @@ void Menu::run() {
             choice = getMenuChoice();
 
             switch (choice) {
-            case 1:
-                handleAddDevice();
-                break;
-            case 2:
-                handleDeleteDevice();
-                break;
-            case 3:
-                handleIncreaseStock();
-                break;
-            case 4:
-                handleReduceStock();
-                break;
-            case 5:
-                handlePrintWarehouse();
-                break;
-            case 6:
-                handlePrintDeviceDetails();
-                break;
-            case 7:
-                handleEditDevice();
-                break;
-            case 8:
-                handleSortByPrice();
-                break;
-            case 9:
-                handleLoadTestData();
-                break;
-            case 10:
-                warehouse.showHistory();
-                break;
-            case 11:
-                handleClearWarehouse();
-                break;
-            case 12:
-                handleSaveData();
-                break;
-            case 13:
-                handleLoadData();
-                break;
-            case 14:
-                handleGenerateReport();
-                break;
-            case 0:
-                std::cout << "Выход из программы...\n";
-                break;
-            default:
-                std::cout << "Неверный пункт меню. Попробуйте снова.\n";
-                break;
+                case 1:
+                    handleAddDevice();
+                    break;
+                case 2:
+                    handleDeleteDevice();
+                    break;
+                case 3:
+                    handleIncreaseStock();
+                    break;
+                case 4:
+                    handleReduceStock();
+                    break;
+                case 5:
+                    handlePrintWarehouse();
+                    break;
+                case 6:
+                    handlePrintDeviceDetails();
+                    break;
+                case 7:
+                    handleEditDevice();
+                    break;
+                case 8:
+                    handleSortByPrice();
+                    break;
+                case 9: 
+                    handleSortByName(); 
+                    break;        
+                case 10:
+                    handleFindByPriceRange(); 
+                    break;   
+                case 11: 
+                    handleShowMinMaxPrice(); 
+                    break;     
+                case 12: 
+                    handleCountItemsMoreThan(); 
+                    break;  
+                case 13:
+                    handleLoadTestData();
+                    break;
+                case 14:
+                    warehouse.showHistory();
+                    break;
+                case 15:
+                    handleClearWarehouse();
+                    break;
+                case 16:
+                    handleSaveData();
+                    break;
+                case 17:
+                    handleLoadData();
+                    break;
+                case 18:
+                    handleGenerateReport();
+                    break;
+                case 0:
+                    std::cout << "Выход из программы...\n";
+                    break;
+                default:
+                    std::cout << "Неверный пункт меню. Попробуйте снова.\n";
+                    break;
+                }
             }
-        }
         catch (const WarehouseException&) {
-            handleException(std::current_exception());
+            exception(std::current_exception());
         }
     }
 }
 
-void Menu::handleSaveData() const {
-    warehouse.saveStateToFile("warehouse_data.txt");
-    std::cout << "Состояние склада успешно сохранено в файл warehouse_data.txt!\n";
-}
-
-void Menu::handleLoadData() {
-    warehouse.loadStateFromFile("warehouse_data.txt");
-    std::cout << "Состояние склада успешно восстановлено из файла warehouse_data.txt!\n";
-}
-
-void Menu::handleGenerateReport() const {
-    warehouse.generateReport("report.txt");
-    std::cout << "Текстовый отчет успешно сформирован в файл report.txt!\n";
-}
-
-void Menu::handleException(std::exception_ptr eptr) const {
+void Menu::exception(std::exception_ptr eptr) const {
     if (!eptr) return;
 
     try {
@@ -303,8 +234,47 @@ void Menu::handleDeleteDevice() {
     std::cout << "Запись успешно удалена со склада!\n";
 }
 
+void Menu::handleIncreaseStock() const {
+    std::cout << "=== Пополнение остатка товара ===\n";
+    StockItem* item = selectStockItem();
+
+    std::cout << "Введите количество для прихода: ";
+    int amount = 0;
+    if (!(std::cin >> amount)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Введено некорректное количество");
+    }
+
+    warehouse.increaseStockQuantity(item, amount);
+
+    std::cout << "Остаток товара успешно пополнен!\n";
+}
+
+void Menu::handleReduceStock() const {
+    std::cout << "=== Списание товара со склада ===\n";
+    StockItem* item = selectStockItem();
+
+    std::cout << "Введите количество для списания: ";
+    int amount = 0;
+    if (!(std::cin >> amount)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Введено некорректное количество");
+    }
+
+    warehouse.reduceStockQuantity(item, amount);
+}
+
 void Menu::handlePrintWarehouse() const {
     warehouse.printWarehouseState();
+}
+
+void Menu::handlePrintDeviceDetails() const {
+    StockItem* item = selectStockItem();
+    std::cout << "\n=== Детальные характеристики ===\n";
+    std::cout << *(item->device) << "\n";
+    std::cout << std::format("Количество на складе: {} шт.\n", item->quantity);
 }
 
 void Menu::handleEditDevice() const {
@@ -312,6 +282,113 @@ void Menu::handleEditDevice() const {
     if (item && item->device) {
         editDeviceMenu(*(item->device));
     }
+}
+
+void Menu::handleSortByPrice() {
+    warehouse.sortByPrice();
+}
+
+void Menu::handleSortByName() {
+    warehouse.sortByName();
+    std::cout << "Каталог успешно отсортирован по названию!\n";
+}
+
+void Menu::handleFindByPriceRange() const {
+    std::cout << "=== Поиск товаров по диапазону цен ===\n";
+    std::cout << "Введите минимальную цену (BYN): ";
+    double minP = 0.0;
+    if (!(std::cin >> minP) || minP < 0) {
+        std::cin.clear(); std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная минимальная цена");
+    }
+
+    std::cout << "Введите максимальную цену (BYN): ";
+    double maxP = 0.0;
+    if (!(std::cin >> maxP) || maxP < minP) {
+        std::cin.clear(); std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректная максимальная цена");
+    }
+
+    auto results = warehouse.findByPriceRange(minP, maxP);
+    if (results.empty()) {
+        std::cout << "Товаров в данном диапазоне цен не найдено.\n";
+        return;
+    }
+
+    std::cout << std::format("\nНайдено позиций: {}\n", results.size());
+    for (size_t i = 0; i < results.size(); ++i) {
+        std::cout << (i + 1) << ". " << results[i] << "\n";
+    }
+}
+
+void Menu::handleShowMinMaxPrice() const {
+    std::cout << "\n=== Анализ цен на складе ===\n";
+    const auto& expensive = warehouse.getMostExpensiveItem();
+    const auto& cheap = warehouse.getCheapestItem();
+
+    std::cout << std::format("Самый дорогой товар: {} ({:.2f} BYN)\n",
+        expensive.device->getModel(), expensive.device->getPrice());
+    std::cout << std::format("Самый дешевый товар: {} ({:.2f} BYN)\n",
+        cheap.device->getModel(), cheap.device->getPrice());
+}
+
+void Menu::handleCountItemsMoreThan() const {
+    std::cout << "Введите порог количества для проверки: ";
+    int threshold = 0;
+    if (!(std::cin >> threshold) || threshold < 0) {
+        std::cin.clear(); std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный порог количества");
+    }
+
+    int count = warehouse.countItemsMoreThan(threshold);
+    std::cout << std::format("Количество позиций, имеющих более {} шт. на складе: {}\n", threshold, count);
+}
+
+void Menu::handleLoadTestData() {
+    warehouse += StockItem{ std::make_unique<Smartphone>("iPhone 15 Pro", "Apple", 4200.0, 12, 8, "iOS 17"), 15 };
+    warehouse += StockItem{ std::make_unique<Tablet>("Galaxy Tab S9", "Samsung", 2600.0, 24, 11.0, true), 8 };
+    warehouse += StockItem{ std::make_unique<Laptop>("ThinkPad X1 Carbon", "Lenovo", 6300.0, 36, "Intel Core i7-1370P", 57), 5 };
+    warehouse += StockItem{ std::make_unique<HomeAppliance>("Series 6 Washing Machine", "Bosch", 2200.0, 24, "A+++", 2300), 3 };
+
+    std::cout << "Тестовые данные успешно загружены на склад!\n";
+}
+
+void Menu::handleClearWarehouse() {
+    std::cout << "Вы уверены, что хотите полностью очистить склад? (1 - Да, 0 - Нет): ";
+
+    int confirm = -1;
+    if (!(std::cin >> confirm)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный ввод. Ожидается 1 (Да) или 0 (Нет).");
+    }
+    std::cin.ignore(10000, '\n');
+
+    if (confirm == 1) {
+        warehouse.clearWarehouse();
+        std::cout << "Склад успешно очищен.\n";
+    }
+    else if (confirm == 0) {
+        std::cout << "Очистка склада отменена.\n";
+    }
+    else {
+        throw InvalidDataException(std::format("Недопустимый вариант подтвеждения (введено: {}). Ожидается 1 или 0.", confirm));
+    }
+}
+
+void Menu::handleSaveData() const {
+    warehouse.saveStateToFile("warehouse_data.txt");
+    std::cout << "Состояние склада успешно сохранено в файл warehouse_data.txt!\n";
+}
+
+void Menu::handleLoadData() {
+    warehouse.loadStateFromFile("warehouse_data.txt");
+    std::cout << "Состояние склада успешно восстановлено из файла warehouse_data.txt!\n";
+}
+
+void Menu::handleGenerateReport() const {
+    warehouse.generateReport("report.txt");
+    std::cout << "Текстовый отчет успешно сформирован в файл report.txt!\n";
 }
 
 void Menu::printEditMenu(const ElectronicDevice& device) const {
@@ -399,7 +476,7 @@ void Menu::editExtraSpec(ElectronicDevice& device) const {
 
     warehouse.logAction(std::format(
         "Обновлены доп. характеристики товара \"{}\": {}",
-        device.getModel(), device.getExtraSpec() ));
+        device.getModel(), device.getExtraSpec()));
     std::cout << "Доп. характеристики успешно обновлены!\n";
 }
 
@@ -432,8 +509,4 @@ void Menu::editDeviceMenu(ElectronicDevice& device) const {
             throw InvalidDataException(std::format("Выбран несуществующий пункт меню редактирования ({})", choice));
         }
     }
-}
-
-void Menu::handleSortByPrice() {
-    warehouse.sortByPrice();
 }

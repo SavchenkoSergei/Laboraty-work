@@ -16,18 +16,25 @@ private:
 
     int getMenuChoice() const;
     void printMainMenu() const;
+    void exception(std::exception_ptr eptr) const;
 
     void handleAddDevice();
     void handleDeleteDevice();
+    void handleIncreaseStock() const;
     void handleReduceStock() const;
     void handlePrintWarehouse() const;
     void handlePrintDeviceDetails() const;
     void handleEditDevice() const;
     void handleSortByPrice();
+    void handleSortByName();
+    void handleFindByPriceRange() const;
+    void handleShowMinMaxPrice() const;
+    void handleCountItemsMoreThan() const;
     void handleLoadTestData();
     void handleClearWarehouse();
-    void handleException(std::exception_ptr eptr) const;
-    void handleIncreaseStock() const;
+    void handleSaveData() const;
+    void handleLoadData();
+    void handleGenerateReport() const;
 
     StockItem* selectStockItem() const;
     void printAddDeviceMenu() const;
@@ -39,10 +46,6 @@ private:
     void editManufacturer(ElectronicDevice& device) const;
     void editModel(ElectronicDevice& device) const;
     void editExtraSpec(ElectronicDevice& device) const;
-
-    void handleSaveData() const;
-    void handleLoadData();
-    void handleGenerateReport() const;
 public:
     explicit Menu(Warehouse& wh);
 
