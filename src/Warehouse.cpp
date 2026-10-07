@@ -5,6 +5,7 @@
 #include <format>
 #include <algorithm>
 #include <numeric>
+#include <cctype>
 
 std::string Warehouse::getCurrentTimestamp() {
     const auto now = std::chrono::system_clock::now();
@@ -95,20 +96,39 @@ void Warehouse::sortByPrice(bool ascending) {
             : (a.device->getPrice() > b.device->getPrice());
         });
 
-    logAction("Выполнена сортировка товаров по цене.");
+    logAction(std::format("Выполнена сортировка товаров по цене ({})", ascending ? "по возрастанию" : "по убыванию"));
 }
 
-void Warehouse::sortByName() {
+void Warehouse::sortByName(bool ascending) {
     if (inventory.empty()) {
         throw InvalidOperationException("Невозможно отсортировать склад: каталог товаров пуст.");
     }
 
-    std::sort(inventory.begin(), inventory.end(), [](const StockItem& a, const StockItem& b) {
+    auto toLowerStr = [](std::string_view str) {
+        std::string lowerStr;
+        lowerStr.reserve(str.size());
+        for (char ch : str) {
+            lowerStr.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+        }
+        return lowerStr;
+        };
+
+    std::sort(inventory.begin(), inventory.end(), [&toLowerStr, ascending](const StockItem& a, const StockItem& b) {
         if (!a.device || !b.device) return false;
-        return a.device->getModel() < b.device->getModel();
+
+        std::string modelA = toLowerStr(a.device->getModel());
+        std::string modelB = toLowerStr(b.device->getModel());
+
+        if (modelA == modelB) {
+            return ascending ? (a.device->getModel() < b.device->getModel())
+                : (a.device->getModel() > b.device->getModel());
+        }
+
+        return ascending ? (modelA < modelB) : (modelA > modelB);
         });
 
-    logAction("Выполнена сортировка товаров по наименованию модели.");
+    logAction(std::format("Выполнена сортировка товаров по наименованию модели ({})",
+        ascending ? "по возрастанию, А-Я" : "по убыванию, Я-А"));
 }
 
 const StockItem& Warehouse::getMostExpensiveItem() const {

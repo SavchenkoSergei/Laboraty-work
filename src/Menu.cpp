@@ -285,12 +285,49 @@ void Menu::handleEditDevice() const {
 }
 
 void Menu::handleSortByPrice() {
-    warehouse.sortByPrice();
+    std::cout << "=== Сортировка по цене ===\n";
+    std::cout << "Выберите порядок (1 - от дешевых к дорогим, 0 - от дорогих к дешевым): ";
+
+    int choice = -1;
+    if (!(std::cin >> choice) || (choice != 0 && choice != 1)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный выбор порядка сортировки. Ожидается 1 или 0.");
+    }
+    std::cin.ignore(10000, '\n');
+
+    bool ascending = (choice == 1);
+    warehouse.sortByPrice(ascending);
+
+    if (ascending) {
+        std::cout << "Каталог успешно отсортирован по возрастанию цены\n";
+    }
+    else {
+        std::cout << "Каталог успешно отсортирован по убыванию цены\n";
+    }
 }
 
 void Menu::handleSortByName() {
-    warehouse.sortByName();
-    std::cout << "Каталог успешно отсортирован по названию!\n";
+    std::cout << "=== Сортировка по наименованию модели ===\n";
+    std::cout << "Выберите порядок (1 - от А до Я, 0 - от Я до А): ";
+
+    int choice = -1;
+    if (!(std::cin >> choice) || (choice != 0 && choice != 1)) {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        throw InvalidDataException("Некорректный выбор порядка сортировки. Ожидается 1 или 0.");
+    }
+    std::cin.ignore(10000, '\n');
+
+    bool ascending = (choice == 1);
+    warehouse.sortByName(ascending);
+
+    if (ascending) {
+        std::cout << "Каталог успешно отсортирован по алфавиту (А-Я)!\n";
+    }
+    else {
+        std::cout << "Каталог успешно отсортирован в обратном порядке (Я-А)!\n";
+    }
 }
 
 void Menu::handleFindByPriceRange() const {

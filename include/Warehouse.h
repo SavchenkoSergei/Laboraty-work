@@ -34,7 +34,7 @@ public:
     void reduceStockQuantity(StockItem* item, int amount) const;
 
     void sortByPrice(bool ascending = true);
-    void sortByName();
+    void sortByName(bool ascending = true);
 
     const StockItem& getMostExpensiveItem() const;
     const StockItem& getCheapestItem() const;
