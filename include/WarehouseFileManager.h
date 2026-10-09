@@ -3,6 +3,7 @@
 #include <string>
 #include <string_view>
 #include "Warehouse.h"
+#include "AllExceptions.h"
 
 class WarehouseFileManager {
 public:

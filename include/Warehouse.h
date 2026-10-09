@@ -4,7 +4,7 @@
 #include <string_view>
 #include "StockItem.h"
 #include "CategoryStats.h"
-#include "Exceptions.h"
+#include "AllExceptions.h"
 
 class Warehouse {
 private:

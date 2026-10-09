@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "WarehouseFileManager.h"
-#include "Exceptions.h"
+#include "AllExceptions.h"
 #include "Warehouse.h"
 #include "CategoryStats.h"
 #include "ElectronicDevice.h"

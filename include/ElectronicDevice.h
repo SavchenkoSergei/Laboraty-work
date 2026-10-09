@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Exceptions.h"
+#include "AllExceptions.h"
 #include <string>
 #include <string_view>
 #include <iostream>

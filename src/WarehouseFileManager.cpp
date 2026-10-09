@@ -2,7 +2,6 @@
 #include <fstream>
 #include <format>
 #include <numeric>
-#include "Exceptions.h"
 #include "Smartphone.h"
 #include "Tablet.h"
 #include "Laptop.h"
