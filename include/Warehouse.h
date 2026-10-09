@@ -5,10 +5,6 @@
 #include "StockItem.h"
 #include "CategoryStats.h"
 #include "Exceptions.h"
-#include "Smartphone.h"
-#include "Tablet.h"
-#include "Laptop.h"
-#include "HomeAppliance.h"
 
 class Warehouse {
 private:
@@ -43,14 +39,13 @@ public:
     CategoryMap getStatsByCategory() const;
 
     void logAction(std::string_view message) const;
-    void appendToExternalLog(const std::string& message) const;
-    void saveStateToFile(const std::string& filename = "warehouse_data.txt") const;
-    void loadStateFromFile(const std::string& filename = "warehouse_data.txt");
-    void generateReport(const std::string& filename = "report.txt") const;
+
+    void restoreState(std::string newName, InventoryContainer newInventory, LogContainer newHistory);
 
     Warehouse& operator+=(StockItem newItem);
     Warehouse& operator-=(std::string_view model);
 
+    const std::string& getWarehouseName() const { return warehouseName; }
     const InventoryContainer& getInventory() const { return inventory; }
     const LogContainer& getActionHistory() const { return actionHistory; }
 };

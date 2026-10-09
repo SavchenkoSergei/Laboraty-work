@@ -414,17 +414,17 @@ void Menu::handleClearWarehouse() {
 }
 
 void Menu::handleSaveData() const {
-    warehouse.saveStateToFile("warehouse_data.txt");
+    WarehouseFileManager::saveStateToFile(warehouse, "warehouse_data.txt");
     std::cout << "Состояние склада успешно сохранено в файл warehouse_data.txt!\n";
 }
 
 void Menu::handleLoadData() {
-    warehouse.loadStateFromFile("warehouse_data.txt");
+    WarehouseFileManager::loadStateFromFile(warehouse, "warehouse_data.txt");
     std::cout << "Состояние склада успешно восстановлено из файла warehouse_data.txt!\n";
 }
 
 void Menu::handleGenerateReport() const {
-    warehouse.generateReport("report.txt");
+    WarehouseFileManager::generateReport(warehouse, "report.txt");
     std::cout << "Текстовый отчет успешно сформирован в файл report.txt!\n";
 }
 

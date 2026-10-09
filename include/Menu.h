@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "WarehouseFileManager.h"
 #include "Exceptions.h"
 #include "Warehouse.h"
 #include "CategoryStats.h"
